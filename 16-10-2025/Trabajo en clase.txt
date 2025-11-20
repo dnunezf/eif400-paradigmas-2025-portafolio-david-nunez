@@ -1,0 +1,116 @@
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ swipl -q
+// Deme los N que cumplan con esa condicion
+?- length([1, 2, [3], 4], N).
+N = 4.
+
+// Es correcto que la lista es de length = 3?
+?- length([1, 2, [3], 4], 3).
+false.
+
+// Es correcto que la lista es de length = 4?
+?- length([1, 2, [3], 4], 4).
+true.
+
+// Deme todas las listas de length=4
+?- length(L, 4).
+L = [_, _, _, _].
+
+// Genera todas las listas posibles
+?- length(L, N).
+L = [],
+N = 0 ;
+L = [_],
+N = 1 ;
+L = [_, _],
+N = 2 ;
+L = [_, _, _],
+N = 3 ;
+L = [_, _, _, _],
+N = 4 ;
+L = [_, _, _, _, _],
+N = 5 ;
+L = [_, _, _, _, _, _],
+N = 6 ;
+L = [_, _, _, _, _, _, _],
+N = 7 ;
+L = [_, _, _, _, _, _, _, _],
+N = 8 ;
+L = [_, _, _, _, _, _, _, _, _],
+N = 9 ;
+L = [_, _, _, _, _, _, _, _, _|...],
+N = 10 ;
+
+member = saber si algo esta en una coleccion. Se queda esperando ya que puede haber otra posibilidad, de que juan este mas de una vez. Busca todas las pruebas que den true
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ swipl -q
+?- member(juan, [ana, pedro, juan, maria, jesus, jafeth]). // 1 true, 1 Juan
+true ;
+false.
+
+?- member(juan, [ana, pedro, juan, maria, jesus, juan, jafeth]). // 2 true, 2 Juan
+true ;
+true ;
+false.
+
+// cuales valores de X hacen que esos den true? 
+// funciona como un iterador. Es un loop en el fondo
+?- member(X, [ana, pedro, juan, maria, jesus, juan, jafeth]).
+X = ana ;
+X = pedro ;
+X = juan ;
+X = maria ;
+X = jesus ;
+X = juan ;
+X = jafeth.
+
+// Lista de listas
+?- member(X, [[ana, 20], [pedro, 21], [juan, 16], [maria, 27], [jesus, 33], [juan, 40], [jafeth, 50]]).
+X = [ana, 20] ;
+X = [pedro, 21] ;
+X = [juan, 16] ;
+X = [maria, 27] ;
+X = [jesus, 33] ;
+X = [juan, 40] ;
+X = [jafeth, 50].
+
+// Dame la lista de las Personas menores: X = Personas, A = Age. , es la condicion
+// [X, A] se encierra en una lista porque necesito que me retorna una lista con el nombre y edad
+?- member([X, A], [[ana, 20], [pedro, 21], [juan, 16], [maria, 27], [jesus, 33], [juan, 40], [jafeth, 5]]), A < 18.
+X = juan,
+A = 16 ;
+X = jafeth,
+A = 5.
+
+?- member([X, A], [[ana, 20], [pedro, 21], [juan, 16], [maria, 27], [jesus, 33], [juan, 40], [jafeth, 5]]), writeln(['viendo a', X, A]), A < 18.
+[viendo a,ana,20]
+[viendo a,pedro,21]
+[viendo a,juan,16]
+X = juan,
+A = 16 ;
+[viendo a,maria,27]
+[viendo a,jesus,33]
+[viendo a,juan,40]
+[viendo a,jafeth,5]
+X = jafeth,
+A = 5.
+
+?- member([X, A], [[ana, 20], [pedro, 21], [juan, 16], [maria, 27], [jesus, 33], [juan, 40], [jafeth, 5]]), A < 18, writeln(['exito con', X, A]).
+[exito con,juan,16]
+X = juan,
+A = 16 ;
+[exito con,jafeth,5]
+X = jafeth,
+A = 5.
+
+x lo cambiamos a atomo, ahi falla. Compara x es igual a ana?
+
+?- member([x, A], [[ana, 20], [pedro, 21], [juan, 16], [maria, 27], [jesus, 33], [juan, 40], [jafeth, 5]]), A < 18, writeln(['exito con', X, A]).
+false.
+
+falla, busca a las maria, pero es false porque maria es mayor de edad
+?- member([maria, A], [[ana, 20], [pedro, 21], [juan, 16], [maria, 27], [jesus, 33], [juan, 40], [jafeth, 5]]), A < 18, writeln(['exito con', X, A]).
+false.
+
+no aparece el nombre jafeth, porque yo se lo di, solo aparece la edad
+?- member([jafeth, A], [[ana, 20], [pedro, 21], [juan, 16], [maria, 27], [jesus, 33], [juan, 40], [jafeth, 5]]), A < 18, writeln(['exito con', X, A]).
+[exito con,_31484,5]
+A = 5.

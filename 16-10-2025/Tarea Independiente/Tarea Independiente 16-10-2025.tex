@@ -1,0 +1,298 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 16/10/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Uso básico de swipl para ejecutar scripts
+		\item Prolog no tiene while, for, if-then-else explícitos
+		\item Prolog: diseñado para recursión + backtracking
+		\item Prolog como probador de teoremas en lógica de Horn + Lógica del Usuario (Business Logic)
+		\item Probar == Computar respuestas (true) o falla (false, fail)
+		\item Razona por búsqueda exhaustiva "hacia-atrás" con backtracking (DFS, brute-force)
+		\item Facts, Clauslas y Goals. Coma es AND, Punto-y-coma es OR, + es negación (por falla)
+		\item Términos como AST
+		\item Sin estructura: 
+		\begin{itemize}
+			\item Variables
+			\item Constantes o atómicos; átomos (comillas simples), números (lo usual), strings(comillas dobles)
+			\item Ejemplos: juan, '100-ABC', "Hello World!"
+		\end{itemize}
+		\item Compuestos (términos): listas ([], [1, juan, [2] [[]]], tuple(juan, 20)
+		\begin{itemize}
+			\item Ejemplos person(juan, 20, male) accounts('100-ABC', 10000)
+		\end{itemize}
+		\item Un término tiene semántica solo si tiene reglas asociadas o está definido en Prolog
+		\item Programas como Pipelines de datos+control o dataflows
+		\item Computación por backtracking (equivale a ciclos en la VM)
+		\item Búsqueda de "pruebas" DFS
+	\end{itemize}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		Escriba accounts_print(+P) que imprime las cuentas de la persona P una por una c/ línea. Haga dos opciones:
+		a) Usando solo member, writeln y false. Nota: false es un predicado que siempre provoca backtracking.
+		b) Usando el predicado forall/2 (ver en documentación)
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Ejercicio 1.a y 1.b}]
+		/*Ejercicio 01 tarea independiente 16-10-2025*/
+		
+		person_account(juan, '200-ABC').
+		person_account(juan, '200-QWR').
+		person_account(juan, '100-ABC').
+		person_account(maria, '200-ABC').
+		person_account(maria, '100-RST').
+		
+		/*
+		select columns from table where filter (condition)
+		P = Persona
+		Accs = Lista de cuentas
+		+ entran datos, - salen datos, ? significa entrada/salida
+		*/
+		%- accounts_of(+P, -Accs)
+		accounts_of(P, Accs) :-
+		findall(Acc, person_account(P, Acc), Accs).
+		
+		% a) member + writeln + false (fail-driven loop)
+		accounts_print_a(P) :-
+		accounts_of(P, Accs), % busca todas las cuentas de la persona P y las guarda en la lista Accs
+		member(Acc, Accs), % toma una cuenta (Acc) de la lista, una por una
+		writeln(Acc), % imprime esa cuenta
+		false; % provoca backtracking: obliga a Prolog a volver a member y tomar otra cuenta
+		true. % cuando ya no queden mas cuentas, termina correctamente
+		
+		% b) usando forall
+		accounts_print_b(P) :-
+		accounts_of(P, Accs),
+		forall(member(Acc, Accs), writeln(Acc)). % Para cada Acc en Accs, ejecuta writeln(Acc).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- accounts_print_a(juan).
+		200-ABC
+		200-QWR
+		100-ABC
+		true.
+		
+		?- accounts_print_b(maria).
+		200-ABC
+		100-RST
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{verbatim}
+		Haga Holamundo.pl  version nuev:
+		Cambie lo representación de persona como átomo por una estructura. Use un término así: person(Name, Gender, Age). El Name a su vez es ahora un término name(First, Last).
+		Por ejemplo
+		person(name(juan, perez), 20, male) % persona nombre de pila juan, apellido perez, edad 20 años, genero masculino.
+
+		b) Añada getters (para nombre (de pila o apellido), edad y género usando facts. Por Ejemplo:
+		person_name(person(Name,_,_), Name).
+		% Otros getters para age y gender.
+		
+		b) Escriba un predicado account_invalid_age(-InvAccs) que calcule en InvAccs una lista completa de las personas y cuentas inválidas por edad: la persona dueña es menor de edad. InvAccs sería una lista así: [..., invalid(name(perez, juan), 10 '200-ABC'), ...] si juan  perez con 10 años fuera dueño de la cuenta '200-ABC'. La lista sale ordenada por apellido (ver predicados de sort de Prolog)
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={holamundo.pl}]
+		/*
+		@author: david
+		holamundo.pl (version nueva con person(name(First,Last), Gender, Age))
+		*/
+		
+		% Personas + Cuentas (antes atomos, ahora terminos)
+		person_account(person(name(juan, perez), male, 20), '200-ABC').
+		person_account(person(name(juan, perez), male, 20), '200-QWR').
+		person_account(person(name(juan, perez), male, 20), '100-ABC').
+		person_account(person(name(maria, lopez), female, 16), '200-ABC').
+		person_account(person(name(maria, lopez), female, 16), '100-RST').
+		
+		% Getters (facts, reglas puras)
+		person_name(person(Name, _, _), Name).
+		person_first_name(person(name(First, _), _, _), First).
+		person_last_name(person(name(_, Last), _, _), Last).
+		person_age(person(_, _, Age), Age).
+		person_gender(person(_, Gender, _), Gender).
+		
+		/*
+		select columns from table where filter (condition)
+		P = Persona (term person/3)
+		Accs = Lista de cuentas
+		+ entran datos, - salen datos, ? entrada/salida
+		*/
+		%- accounts_of(+P, -Accs)
+		accounts_of(P, Accs) :-
+		findall(Acc, person_account(P, Acc), Accs).
+		
+		/*
+		account_invalid_age(-InvAccs)
+		Construye todos los invalidos por minoria de edad y los ordena por apellido.
+		Forma: invalid(name(Last, First), Age, Acc)
+		*/
+		account_invalid_age(InvAccs) :-
+		% genera una lista raw con todas las cuentas invalidas
+		findall(
+		invalid(name(Last, First), Age, Acc), % Estructura de cada elemento
+		( person_account(P, Acc),             % Busca persona y cuenta
+		person_age(P, Age),                 % Obtiene edad
+		Age < 18,                           % Filtro: menor de edad
+		person_first_name(P, First),        % Obtiene nombre de pila
+		person_last_name(P, Last)           % Obtiene apellido
+		),
+		Raw
+		),
+		sort(Raw, InvAccs). % Ordena alfabeticamente y elimina duplicados
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [holamundo].
+		true.
+		
+		?- person_name(person(name(juan,perez), male, 20), N).
+		N = name(juan, perez).
+		
+		?- person_age(person(name(maria,lopez), female, 16), A).
+		A = 16.
+		
+		?- accounts_of(person(name(juan,perez), male, 20), L).
+		L = ['200-ABC', '200-QWR', '100-ABC'].
+		
+		?- account_invalid_age(X).
+		X = [invalid(name(lopez, maria), 16, '100-RST'), invalid(name(lopez, maria), 16, '200-ABC')].
+	\end{lstlisting}
+	
+	\section*{Uso de predicado !}
+	
+	\begin{lstlisting}[language=JavaScript]
+		/*
+		Ejemplo de uso del predicado !
+		
+		cut (!) detiene el backtracking.
+		Es decir, una vez que Prolog llega al corte,
+		no volvera atras para probar otras opciones.
+		
+		Predicado: grade(+Score, -Result)
+		Asigna una calificacion (Result) segun la nota (Score).
+		*/
+		
+		% Caso 1: si la nota es 90 o mas, es excelente.
+		grade(Score, excellent) :-
+			Score >= 90, !.        % Corte: no se evaluan reglas siguientes.
+		
+		% Caso 2: si la nota es 70 o mas, es aprobada.
+		grade(Score, pass) :-
+			Score >= 70, !.        % Otro corte para detener al cumplir esta condicion.
+		
+		% Caso 3: en cualquier otro caso, es reprobada.
+		grade(_, fail).
+		
+		/*
+		Como funciona paso a paso:
+		
+		?- grade(95, R).
+		1) Coincide con la primera regla (Score >= 90).
+		2) Llega al ! -> corta las demas opciones.
+		3) Resultado: R = excellent.
+		
+		?- grade(75, R).
+		1) Falla la primera (75 >= 90 -> falso).
+		2) Pasa a la segunda (75 >= 70 -> verdadero).
+		3) Llega al ! -> detiene busqueda.
+		4) Resultado: R = pass.
+		
+		?- grade(40, R).
+		1) Falla las dos primeras.
+		2) Solo queda la tercera.
+		3) Resultado: R = fail.
+		*/
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [ejercicioCorte].
+		true.
+		
+		?- grade(95, R).
+		R = excellent.
+		
+		?- grade(75, R).
+		R = pass.
+		
+		?- grade(40, R).
+		R = fail.
+	\end{lstlisting}
+	
+\end{document}
