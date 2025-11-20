@@ -33,29 +33,19 @@ A lo largo del semestre profundicé en:
 
 Durante el semestre construí **Expresso**, un mini-lenguaje funcional con sintaxis moderna, operadores, lambdas, tipos y patrones, que se transpila a Java 23+.
 
-### Sprint 1 – CLI y flujo básico
-- Implementación del comando `expressor` con **Picocli**.  
-- Subcomandos `transpile`, `build`, `run` en versión mock inicial.  
-- Empaquetado, scripts para Linux/Windows y ejecución stand-alone.
+El proyecto incluye:
 
-### Sprint 2 – Lenguaje completo (versión básica)
-- Gramática real en ANTLR4.  
-- Operadores `+ - * / **`, unario `-`, lambdas `->`, ternario `?:`.  
-- Sentencias `let` y `print`.  
-- AST propio y transpilador Expresso → Java funcional.  
-- CLI integrada: transpilar, compilar y ejecutar programas Expresso reales.
+- **Diseño de sintaxis y gramática** usando ANTLR4.  
+- **Construcción de un árbol de sintaxis abstracta (AST)** y el correspondiente conjunto de visitantes para recorridos y transformaciones.  
+- **Implementación de análisis semántico y sistema de tipos**, con tabla de símbolos, detección de errores, verificación de funciones, tipos algebraicos, coincidencia de patrones y anotaciones.  
+- **Transpilación a Java 23+**, generando código fuente equivalente mediante:
+  - funciones expresadas como métodos estáticos,  
+  - tipos algebraicos mapeados a `sealed interfaces` y `record`,  
+  - expresiones complejas traducidas a construcciones idiomáticas de Java.  
+- **Integración en una CLI profesional (`expressor`)**, capaz de tomar un archivo `.expresso`, verificarlo, generar Java, compilarlo y ejecutarlo.  
+- **Casos de prueba finales**, cubriendo funciones, tipos, algebraicos, patrones, expresiones y coerciones.
 
-### Sprint Final – Sistema de tipos y ampliaciones
-- Implementación del **Typer**: verificación estática, tabla de símbolos y archivo `.typings`.  
-- Nuevas construcciones:
-  - `data`: tipos algebraicos → `sealed interface` + `record`.  
-  - `^`: constructores.  
-  - `match`: pattern matching → `switch` expresivo en Java.  
-  - `fun`: funciones con tipos explícitos.  
-  - `print` como expresión.  
-  - Operador de conversión de tipo `:`.  
-- Casos de prueba obligatorios `tc1`–`tc5` y ejemplos `HelloWorld*`.  
-- Integración total en la CLI: `build` y `run` fallan ante errores semánticos o de tipos.
+El proyecto consolida todos los contenidos de teoría de lenguajes vistos en el curso, desde gramáticas hasta generación de código, pasando por análisis sintáctico, semántico y tipado estático.
 
 ---
 
