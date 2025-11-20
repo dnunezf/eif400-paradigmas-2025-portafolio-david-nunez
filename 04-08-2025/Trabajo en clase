@@ -1,0 +1,66 @@
+Practica en clase
+
+---JSHEll---
+
+Ejecuta los imports
+
+jshell> /imports
+|    import java.io.*
+|    import java.math.*
+|    import java.net.*
+|    import java.nio.file.*
+|    import java.util.*
+|    import java.util.concurrent.*
+|    import java.util.function.*
+|    import java.util.prefs.*
+|    import java.util.regex.*
+|    import java.util.stream.*
+
+Math
+
+jshell> Math.
+   ...>                 IEEEremainder(          PI                      TAU                     
+   ...>                 absExact(               acos(                   addExact(               
+   ...>                 atan(                   atan2(                  cbrt(                   
+   ...>                 ceilDiv(                ceilDivExact(           ceilMod(                
+   ...>                 class                   copySign(               cos(                    
+   ...>                 decrementExact(         divideExact(            exp(                    
+   ...>                 floor(                  floorDiv(               floorDivExact(          
+   ...> (               fma(                    getExponent(            hypot(                  
+   ...> tExact(         log(                    log10(                  log1p(                  
+   ...>                 min(                    multiplyExact(          multiplyFull(           
+   ...> High(           negateExact(            nextAfter(              nextDown(               
+   ...>                 pow(                    random()                rint(                   
+   ...>                 scalb(                  signum(                 sin(                    
+   ...>                 sqrt(                   subtractExact(          tan(                    
+   ...>                 toDegrees(              toIntExact(             toRadians(              
+   ...>                 unsignedMultiplyHigh(   
+   ...> 
+
+jshell> Math.sqrt(2)
+$1 ==> 1.4142135623730951
+
+Para no complicarse escribiendo Math. (puedes cambiar por *, pero es mal practica). Igual, es mejor escribir Math.sqrt()
+
+jshell> import static java.lang.Math.sqrt
+
+jshell> sqrt(2)
+$3 ==> 1.4142135623730951
+
+Que pasa si creamos metodo sqrt()?
+
+jshell> double sqrt(double x) { return x;}
+|  created method sqrt(double)
+
+jshell> sqrt(2)
+|  Error:
+|  reference to sqrt is ambiguous
+|    both method sqrt(double) in  and method sqrt(double) in java.lang.Math match
+|  sqrt(2)
+|  ^--^
+
+
+
+
+
+

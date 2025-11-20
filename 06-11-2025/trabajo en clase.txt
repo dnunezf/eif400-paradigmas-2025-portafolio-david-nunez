@@ -1,0 +1,27 @@
+/*convertir a lista de codigos ASCII de atomos*/
+?- atom_codes('   abc = ', L).
+L = [32, 32, 32, 97, 98, 99, 32, 61, 32].
+
+/*saber el codigo ASCII de un atomo*/
+?- X = 0'a.
+X = 97.
+
+?- X = 0' .
+X = 32.
+
+?- X = 0'\n.
+X = 10.
+
+?- X = 0'\t.
+X = 9.
+
+?- X = 0'@.
+X = 64.
+
+?- atom_codes('   abc = ', L), atom_codes(Atom, L).
+L = [32, 32, 32, 97, 98, 99, 32, 61, 32],
+Atom = '   abc = '.
+
+?- code_type(0'a, T).
+T = alnum ;
+T = alpha ;

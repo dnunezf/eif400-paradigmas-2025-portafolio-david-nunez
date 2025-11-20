@@ -1,0 +1,271 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 08/09/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Ambiguedad en expresiones
+		\item Precedencia
+		\item Asociatividad
+		\item Caso de verbo a sustantivo
+		\item Visitable + Visitor
+	\end{itemize}
+	
+	\section*(Ejercicio 0)
+	
+	\begin{quote}
+		 Haga AstToString un visitor de Node que retorna lo mismo que el toString 
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={AstToString and TestCase}]
+		/*Ejercicio 0 T.I 8/9*/
+		export class AstToString extends Visitor {
+			visit(node) {
+				if (node == null) return "";
+				
+				//Hojas
+				if (node instanceof Num) return String(node.value);
+				if (node instanceof Id) return String(node.name);
+				if (node instanceof Oper) return String(node.name);
+				
+				// Unary: op + expr
+				if (node instanceof UnaryOp) {
+					const op = node.oper.accept(this);
+					const e = node.expr.accept(this);
+					return op + e;
+				}
+				
+				// Binary: L O R
+				if (node instanceof BinaryOp) {
+					const L = node.left.accept(this);
+					const O = node.oper.accept(this);
+					const R = node.right.accept(this);
+					return `(${L} ${O} ${R})`;
+				}
+				
+				// Classic operation: (op, arg1, arg2...)
+				if (node instanceof Operation) {
+					const items = [node.oper, ...node.args].map((x) =>
+					x instanceof Node ? x.accept(this) : String(x)
+					);
+					return `(${items.join(",")})`;
+				}
+				
+				// Generic Node: just showing head and children
+				if (node instanceof Node) {
+					const items = [node.head, ...node.children].map((x) =>
+					x instanceof Node ? x.accept(this) : String(x)
+					);
+					return `(${items.join(",")})`;
+				}
+			}
+		}
+		
+		function test_ast_to_string() {
+			const v = new AstToString();
+			
+			const n = new Node("add", 1, 1, 2, 3);
+			console.log("AstToString(Node)      =", n.accept(v)); // (add, 1, 1, 2, 3)
+			
+			const num = new Num(666);
+			console.log("AstToString(Num)       =", num.accept(v)); // 666
+			
+			const id = new Id("x");
+			console.log("AstToString(Id)        =", id.accept(v)); // x
+			
+			const plus = new Oper("+");
+			const addOp = new Operation(plus, id, num);
+			console.log("AstToString(Operation) =", addOp.accept(v)); // (+, x, 666)
+			
+			const minus = new Oper("-");
+			const negx = new UnaryOp(minus, id);
+			console.log("AstToString(UnaryOp)   =", negx.accept(v)); // -x
+			
+			const addBin = new BinaryOp(plus, id, num);
+			console.log("AstToString(BinaryOp)  =", addBin.accept(v)); // (x + 666)
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{quote}
+		3. Usando un Visitor genere un string que representa \\
+		a) La notación prefija de Node \\
+		b) La notación postfija de Node \\
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript, caption={PrefixNotation}]
+		export class PrefixNotation extends Visitor {
+			visit(node) {
+				if (node == null) return "";
+				
+				if (node instanceof Num) return String(node.value);
+				if (node instanceof Oper) return String(node.name);
+				if (node instanceof Id) return String(node.name);
+				
+				if (node instanceof UnaryOp) {
+					const op = node.oper.accept(this);
+					const e = node.expr.accept(this);
+					const opname = op === "-" ? "neg" : op === "+" ? "pos" : op;
+					return `(${opname} ${e})`;
+				}
+				
+				if (node instanceof BinaryOp) {
+					const op = node.oper.accept(this);
+					const L = node.left.accept(this);
+					const R = node.right.accept(this);
+					return `(${op} ${L} ${R})`;
+				}
+				
+				if (node instanceof Operation) {
+					const op = node.oper.accept(this);
+					const items = node.args.map((a) => a.accept(this));
+					return `(${op} ${items.join(", ")})`;
+				}
+				
+				// Generic node
+				const items = [node.head, ...node.children].map((x) =>
+				x instanceof Node ? x.accept(this) : String(x)
+				);
+				return `(${parts.join(", ")})`;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript, caption={PostfixNotation}]
+		export class PostfixNotation extends Visitor {
+			visit(node) {
+				if (node == null) return "";
+				
+				if (node instanceof Num) return String(node.value);
+				if (node instanceof Oper) return String(node.name);
+				if (node instanceof Id) return String(node.name);
+				
+				if (node instanceof UnaryOp) {
+					const op = node.oper.accept(this);
+					const e = node.expr.accept(this);
+					const opname = op === "-" ? "neg" : op === "+" ? "pos" : op;
+					return `(${e} ${opname})`;
+				}
+				
+				if (node instanceof BinaryOp) {
+					const op = node.oper.accept(this);
+					const L = node.left.accept(this);
+					const R = node.right.accept(this);
+					return `(${L} ${R} ${op})`;
+				}
+				
+				if (node instanceof Operation) {
+					const op = node.oper.accept(this);
+					const items = node.args.map((a) => a.accept(this));
+					return `(${items.join(", ")} ${op})`;
+				}
+				
+				// Generic node
+				const items = [node.head, ...node.children].map((x) =>
+				x instanceof Node ? x.accept(this) : String(x)
+				);
+				if (items.length === 0) return "()";
+				const [head, ...rest] = items;
+				return `(${rest.join(" ")} ${head})`;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript, caption={TestAnotations}]
+		function test_notations() {
+			const x = new Id("x");
+			const n3 = new Num(3);
+			const n5 = new Num(5);
+			const plus = new Oper("+");
+			const minus = new Oper("-");
+			const mul = new Oper("*");
+			
+			const add = new BinaryOp(plus, x, n3); // x + 3
+			const prod = new BinaryOp(mul, add, n5); // (x + 3) * 5
+			const negx = new UnaryOp(minus, x); // -x
+			
+			const Pre = new PrefixNotation();
+			const Post = new PostfixNotation();
+			
+			console.log("PREFIX  add  =", add.accept(Pre)); // (+ x 3)
+			console.log("POSTFIX add  =", add.accept(Post)); // (x 3 +)
+			console.log("PREFIX  prod =", prod.accept(Pre)); // (* (+ x 3) 5)
+			console.log("POSTFIX prod =", prod.accept(Post)); // (x 3 + 5 *)
+			console.log("PREFIX  -x   =", negx.accept(Pre)); // (neg x)
+			console.log("POSTFIX -x   =", negx.accept(Post)); // (x neg)
+		}
+	\end{lstlisting}
+	
+\end{document}

@@ -1,0 +1,342 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 04/09/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Modelo AST: De datos + expresiones + operaciones a AST
+		\item Refactoring (programar es como arte)
+		\item FP en el AST
+		\item Combinador Array::join
+	\end{itemize}
+	
+	\section*(Ejercicio 1)
+	
+	\begin{quote}
+		1. Dibuje el AST en cada caso usnado el modelo ast que hemos estado desarrollando (ast.mjs) \\
+		a)  -2 + 3 * 4 \\
+		b) -(2 + 3 * 4) \\
+		c) -((2 + 3) * 4 ** 5) \\
+		Note en cada caso que, en principio, había ambigüedades. Señálelas. ¿Cómo se resuelven?
+	\end{quote}
+	
+	\subsection*{Solución 3a}
+	
+	\begin{lstlisting}[language=JavaScript]
+		function test_case_3a() {
+			// a) -2 + 3 * 4 -> (-2 + (3 * 4))
+			const two = new Num(2);
+			const three = new Num(3);
+			const four = new Num(4);
+			const opMinus = new Oper("-");
+			const opPlus = new Oper("+");
+			const opMul = new Oper("*");
+			
+			const neg2 = new UnaryOp(opMinus, two);
+			const mul = new BinaryOp(opMul, three, four);
+			const expr = new BinaryOp(opPlus, neg2, mul);
+			
+			console.log("expr_a =", expr.toString()); // out : "(-2 + (3 * 4))"
+		}
+	\end{lstlisting}
+	
+	Primero, se colocan los paréntesis para efectos de orden: \textbf{(-2 + (3 * 4))}
+	
+	Ahora, estas son las ambigüedades y resolución
+	
+	\begin{itemize}
+		\item * vs +: se resuelve por precedencia estándar.
+		\item - unario vs binario: aquí es unario y aplica solo a 2.
+	\end{itemize}
+	
+	\subsection*{Solución 3b}
+	
+	\begin{lstlisting}[language=JavaScript]
+		function test_case_3b() {
+			// b) -(2 + 3 * 4) -> "-(2 + (3 * 4))"
+			const two = new Num(2);
+			const three = new Num(3);
+			const four = new Num(4);
+			const opMinus = new Oper("-");
+			const opPlus = new Oper("+");
+			const opMul = new Oper("*");
+			
+			const mul = new BinaryOp(opMul, three, four);
+			const sum = new BinaryOp(opPlus, two, mul);
+			const expr = new UnaryOp(opMinus, sum);
+			
+			console.log("expr_b =", expr.toString()); // out : s"-(2 + (3 * 4))"
+		}
+	\end{lstlisting}
+	
+	Primero, se colocan los paréntesis para efectos de orden: \textbf{-(2 + (3 * 4))}
+	
+	Ahora, estas son las ambigüedades y resolución
+	
+	\begin{itemize}
+		\item Paréntesis fuerzan que el - unario abarque toda la suma.
+		\item Dentro de los paréntesis, * > + como antes.
+	\end{itemize}
+	
+	\subsection*{Solución 3c}
+	
+	\begin{lstlisting}[language=JavaScript]
+		function test_case_3c() {
+			// c) -((2 + 3) * 4 ** 5) -> "-((2 + 3) * (4 ** 5))"
+			
+			const two = new Num(2);
+			const three = new Num(3);
+			const four = new Num(4);
+			const five = new Num(5);
+			const opMinus = new Oper("-");
+			const opPlus = new Oper("+");
+			const opMul = new Oper("*");
+			const opPow = new Oper("**");
+			
+			const sum = new BinaryOp(opPlus, two, three); 
+			const pow = new BinaryOp(opPow, four, five);
+			const prod = new BinaryOp(opMul, sum, pow); 
+			const expr = new UnaryOp(opMinus, prod);
+			
+			console.log("expr_c =", expr.toString()); // out : "-((2 + 3) * (4 ** 5))"
+		}
+	\end{lstlisting}
+	
+	Primero, se colocan los paréntesis para efectos de orden: \textbf{-((2 + 3) * (4 ** 5))}
+	
+	Ahora, estas son las ambigüedades y resolución
+	
+	\begin{itemize}
+		\item Paréntesis obligan a sumar primero 2 + 3.
+		\item ** tiene mayor precedencia que * y es asociativo a derecha; 4 ** 5 va primero.
+		\item El - unario aplica a todo el producto externo.
+	\end{itemize}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{quote}
+		Parametrice ast::Operation para que los paréntesis y el delimitador se puedan cambiar
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Operation}]
+		export class Operation extends Node {
+			constructor(oper, ...args) {
+				super(oper, ...args);
+			}
+			
+			get oper() {
+				return this.head;
+			}
+			
+			get args() {
+				return this.children;
+			}
+			
+			/* Permite configurar el parentesis y el delimitador.
+			* opts = { lparen: '(', rparen: ')', sep: ', ' }
+			*/
+			toString(opts = {}) {
+				// Estos son los valores por defecto
+				const cfg = {
+					lparen: "(",
+					rparen: ")",
+					sep: ", ",
+					...opts, // SOBREESCRIBE SI SE PASAN OTROS ARGUMENTOS, POR EJEMPLO, sep = " | "
+				};
+				
+				// convertimos operador + argumentos a string
+				const parts = [this.oper, ...this.args].map(
+				(arg) => arg.toString?.(opts) ?? String(arg)
+				);
+				
+				// construimos la cadena final
+				return cfg.lparen + parts.join(cfg.sep) + cfg.rparen;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Test Case}]
+		function test_case_4() {
+			const x = new Id("x");
+			const n666 = new Num(666);
+			const plus = new Oper("+");
+			const add = new Operation(plus, x, n666);
+			
+			console.log("Default =", add.toString());
+			console.log("Parentesis cuadrados =", add.toString({ lparen: "[", rparen: "]" }));
+			console.log("Llaves + coma =", add.toString({ lparen: "{", rparen: "}", sep: ", " }));
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{quote}
+		3. En el modelo ast.mjs: Implemente lo necesario para manejar (y tener su propio toString) en cada caso:
+		a) Un operador ** (pow)
+		b) Un operador ternario como AST
+		c) Implemente lo necesario par manejar un operador coma (disponible en C/C++, JS) 
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\subsubsection*{3a}
+	
+	\begin{lstlisting}[language=JavaScript,caption={PowOp and TestCase}]
+		// potencia
+		export class PowOp extends BinaryOp {
+			constructor(left, right) {
+				super(new Oper("**"), left, right);
+			}
+			
+			toString() {
+				return `(${this.left.toString()} ** ${this.right.toString()})`;
+			}
+		}
+		
+		function test_case_5() {
+			const n2 = new Num(2), n3 = new Num(3), n4 = new Num(4);
+			const rightAssoc = new PowOp(n2, new PowOp(n3, n4)); // 2 ** (3 ** 4)
+			const leftAssc = new PowOp(new PowOp(n2, n3), n4); // (2 ** 3) ** 4
+			
+			console.log("Right associative: ", rightAssoc.toString());
+			console.log("Left associative: ", leftAssc.toString());
+		}
+	\end{lstlisting}
+	
+	\subsubsection*{3b}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Ternary and TestCase}]
+		// ternario ?
+		export class Ternary extends Operation {
+			constructor(test, cons, alt) {
+				super(new Oper("?:"), test, cons, alt);
+			}
+			
+			get test() {
+				return this.args[0];
+			}
+			
+			get cons() {
+				return this.args[1];
+			}
+			
+			get alt() {
+				return this.args[2];
+			}
+			
+			toString() {
+				return `(${this.test.toString()} ? ${this.cons.toString()} : ${this.alt.toString()})`;
+			}
+		}
+		
+		function test_case_6() {
+			const a = new Id("a"), b = new Id("b"), c = new Id("c");
+			const one = new Num(1), two = new Num(2);
+			const plus = new Oper("+"), mul = new Oper("*");
+			
+			const cons = new BinaryOp(plus, b, one); // b + 1
+			const alt = new BinaryOp(mul, c, two); // c * 2
+			const expre = new Ternary(a, cons, alt); // a ? (b + 1) : (c * 2)
+			
+			console.log("Ternary expr: ", expre.toString());
+		}
+	\end{lstlisting}
+	
+	\subsubsection*{3c}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Comma and TestCase}]
+		// coma ,
+		export class Comma extends BinaryOp {
+			constructor(left, right) {
+				super(new Oper(","), left, right);
+			}
+			
+			toString() {
+				return `(${this.left.toString()}, ${this.right.toString()})`;
+			}
+		}
+		
+		function test_case_7() {
+			const x = new Id("x"), y = new Id("y");
+			const one = new Num(1), two = new Num(2);
+			const assign = new Oper("="), plus = new Oper("+");
+			
+			const setX = new BinaryOp(assign, x, one);     
+			const setY = new BinaryOp(assign, y, two);     
+			const sum  = new BinaryOp(plus, x, y);        
+			
+			const seq  = new Comma(new Comma(setX, setY), sum); // (x=1, y=2, x+y)
+			console.log("comma_seq =", seq.toString());    // "((x = 1), (y = 2), (x + y))"
+		}
+	\end{lstlisting}
+	
+\end{document}

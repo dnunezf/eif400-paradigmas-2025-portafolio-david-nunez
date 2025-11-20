@@ -1,0 +1,244 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{purple}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+\lstset{
+	language=Java,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b
+}
+
+\title{Tarea Independiente 04/08/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Rol de Arquitecto versus Ingeniero en el diagrama (realidad-persona-modelo-implementación)
+		\item UML y rol en la historia del modelado
+		\item En compiladores:
+		\begin{itemize}
+			\item Syntax y semántica (estática) (de nuevo)
+			\item AST (Abstract Syntax Tree)
+			\item Tabla de símbolos (symbol table)
+		\end{itemize}
+		\item En java
+		\begin{itemize}
+			\item Semántica de package
+			\item Nombre simple
+			\item Nombre completo (calificado)
+			\item Mapeo de package a ruta en disco
+			\item Semántica de import
+			\item Semántica de import static
+			\item Semántica del * en el import
+			\item Semántica modificador de visibilidad (4 P's)
+			\begin{itemize}
+				\item public
+				\item private
+				\item protected
+				\item default
+			\end{itemize}
+		\end{itemize}
+		\item Principio Don't Repeat Yourself (DRY)
+		\item var en JAVA
+	\end{itemize}
+	
+	\section*{Punto 1}
+	
+	\begin{quote}
+		Verifique con un ejemplo que javac detecta una posible ambigüedad en un identificador no calificado al querer compilar un archivo Test.java.
+	\end{quote}
+	
+	\subsection*{Concepto}
+	Antes de comenzar con la implementación, debemos definir el concepto de ambigüedad. En java, una ambigüedad en un identificador no calificado ocurre cuando una variable, clase o método puede referirse a más de una cosa, y el compilador no puede decidir cuál utilizar.
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[caption={A.java}]
+		package paquete1;
+		
+		public class A {
+			public static int value = 10;
+		}
+	\end{lstlisting} 
+	
+	\begin{lstlisting}[caption={B.java}]
+		package paquete2;
+		
+		public class B {
+			public static int value = 10;
+		}
+	\end{lstlisting} 
+	
+	\begin{lstlisting}[caption={Test.java}]
+		import static paquete1.A.value;
+		import static paquete2.B.value;
+		
+		public class Test {
+			public static void main(String[] args) {
+				System.out.println(value); // Aqui se genera la ambiguedad
+			}
+		}
+	\end{lstlisting}
+	
+	\subsection*{Prueba y error}
+	
+	\begin{verbatim}
+		mkdir -p paquete1 paquete2
+		
+		mv A.java paquete1/
+		mv B.java paquete2/
+		
+		javac paquete1/A.java paquete2/B.java Test.java
+	\end{verbatim}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.95\textwidth]{error.png}
+		\caption{Mensaje error ambigüedad}
+		\label{fig:01}
+	\end{figure}
+	
+	\section*{Punto 2}
+	
+	\begin{quote}
+		¿Por qué javac no permite que dentro de un método que se declare un identificador público o privado?
+		
+		\begin{lstlisting}
+			class A{
+				public int foo(){
+					public int x = 666;
+					return x;
+				}
+			}
+		\end{lstlisting}
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	En Java, los modificadores de acceso (public, private, protected) se utilizan para controlar la visibilidad de clases, métodos y atributos a nivel de clase o instancia. Dentro de un método, solo se pueden declarar variables locales, y estas:
+	
+	\begin{itemize}
+		\item Solo existen mientras se ejecuta el método.
+		\item No forman parte de la clase ni del objeto.
+		\item No pueden tener modificadores de acceso, porque no tiene sentido controlar su visibilidad fuera del método (nadie más puede acceder a ellas de todos modos).
+	\end{itemize}
+	
+	Por eso, cuando tenemos
+	
+	\begin{lstlisting}
+		class A{
+			public int foo(){
+				public int x = 666;
+				return x;
+			}
+		}
+	\end{lstlisting}
+	
+	javac lanza error, porque public no está permitido en la declaración de una variable local dentro del método foo.
+	
+	\section*{Punto 3}
+	
+	\begin{quote}
+		 Considere el código siguiente dentro de una clase Test.java.  Note que hay unos ??? que indican un lugar donde Ud. debe escribir, según se explica. Solo puede cambiar esos ??? :
+		 
+		 \begin{lstlisting}
+		 	class A {
+		 		private int x = 666;
+		 		public class B {
+		 			private int x = 999;
+		 			public void foo() {
+		 				System.out.println(???);
+		 			}
+		 		}
+		 	}
+		 	public class Test{
+		 		public static void main(String... args){
+		 			A a = new A();
+		 			var b = ??? // Se necesita crear un b tal que
+		 			b.foo();    // b.foo() imprima 666 no 999
+		 		}
+		 	}
+		 \end{lstlisting} 
+		 
+		 Solo se vale cambiar los ??? por algo correcto para que se logre imprimir el valor del x de A y no el del B
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}
+		class A {
+			private int x = 666;
+			
+			public class B {
+				private int x = 999;
+				
+				public void foo() {
+					System.out.println(A.this.x); // accedemos al x de A
+				}
+			}
+		}
+		
+		public class Test {
+			public static void main(String... args) {
+				A a = new A();
+				var b = a.new B(); // instanciamos la clase interna B con el objeto a
+				b.foo();           // imprime 666
+			}
+		}
+	\end{lstlisting}
+	
+	\subsection*{Ejecución y compilación}
+	
+	\begin{verbatim}
+		javac Test.java
+		java Test
+	\end{verbatim}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.95\textwidth]{salida.png}
+		\caption{Salida}
+		\label{fig:02}
+	\end{figure}
+	
+\end{document}

@@ -1,0 +1,42 @@
+Programacion funcional en JS
+
+En terminal:
+
+Node
+
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ node
+Welcome to Node.js v22.17.1.
+Type ".help" for more information.
+
+Funcion:
+
+> function add(x) { return x + 666 }
+undefined
+> add(10)
+676
+> var x = 666
+undefined
+> x
+666
+> add
+[Function: add]
+> 
+
+Arrow functions (mejor forma)
+
+> const add_fp = (x) => x + 666
+undefined
+> add_fp 
+[Function: add_fp]
+> add_fp(10)
+676
+> 
+
+> const composicionFunciones = (f,g) => x => f(g(x))
+undefined
+> const add_2 = composicionFunciones(add, add)
+undefined
+> add_2(0)
+1332
+> 
+

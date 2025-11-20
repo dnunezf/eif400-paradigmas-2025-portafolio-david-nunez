@@ -1,0 +1,33 @@
+Es el typer:
+
+jshell> class Fruit[]
+|  Error:
+|  '{' expected
+|  class Fruit[];
+|             ^
+
+jshell> class Fruit();
+|  Error:
+|  '{' expected
+|  class Fruit();
+|             ^
+
+jshell> class Fruit[];
+|  Error:
+|  '{' expected
+|  class Fruit[];
+|             ^
+
+jshell> class Fruit{}
+|  created class Fruit
+
+jshell> List<Fruit> lf = new ArrayList<>()
+lf ==> []
+
+jshell> List<Object> lo
+lo ==> null
+
+jshell> lo = lf
+|  Error:
+|  incompatible types: java.util.List<Fruit> cannot be converted to java.util.List<java.lang.Object>
+|  lo = lf

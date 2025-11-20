@@ -1,0 +1,284 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 07/08/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Evolución y popularidad de lenguajes
+		\item TIOBE y popularidad de lenguajes
+		\item Abstracción en lenguajes
+		\item Modelo pirámide
+		\item Multiparadigma
+		\item FP-OOP
+		\item FP como un nivel de abstracción superior
+		\item FP primer principio: función como objeto
+		\item Arrow (flecha gorda =>) en JS
+		\item Punto-y-coma debate DRY o no DRY
+		\item beta reducción
+	\end{itemize}
+	
+	\section*{Una pequeña introducción}
+
+	Antes de desarrollar los ejercicios, veamos la estructura a seguir entre una función clásica y una arrow function:
+	
+	\begin{lstlisting}[language=JavaScript, caption={Classic Function en JavaScript}]
+		function saludar(nombre) {
+			return "Hola, " + nombre + "!";
+		}
+		
+		console.log(saludar("Nunez")); // Salida: Hola, Nunez!
+		
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Arrow Function en JavaScript}]
+		const saludarFlecha = (nombre) => {
+			return `Hola, ${nombre}!`;
+		};
+		
+		console.log(saludarFlecha("Nunez")); // Salida: Hola, Nunez!
+	\end{lstlisting}
+	
+	\subsection*{Algunas diferencias entre ambas funciones (Ejercicio 4)}
+	
+	\begin{description}
+		\item[Sintaxis] 
+		\begin{itemize}
+			\item \textbf{Clásica}: \texttt{function nombre(param) \{ ... \}}
+			\item \textbf{Flecha}: \texttt{(param) => \{ ... \}} (más corta y expresiva).
+		\end{itemize}
+		
+		\item[\texttt{this}] 
+		\begin{itemize}
+			\item \textbf{Clásica}: Tiene su propio \texttt{this}, depende de cómo se llame la función.
+			\item \textbf{Flecha}: No tiene su propio \texttt{this}, hereda el del contexto donde se define.
+		\end{itemize}
+		
+		\item[Uso como método de objeto] 
+		\begin{itemize}
+			\item \textbf{Clásica}: Adecuada para métodos que necesiten su propio \texttt{this}.
+			\item \textbf{Flecha}: No recomendable si el método debe usar \texttt{this} del objeto.
+		\end{itemize}
+		
+		\item[Constructores (\texttt{new})] 
+		\begin{itemize}
+			\item \textbf{Clásica}: Puede usarse como constructor con \texttt{new}.
+			\item \textbf{Flecha}: No puede ser usada como constructor.
+		\end{itemize}
+		
+		\item[\texttt{arguments}] 
+		\begin{itemize}
+			\item \textbf{Clásica}: Tiene acceso al objeto \texttt{arguments} (lista de todos los parámetros).
+			\item \textbf{Flecha}: No tiene \texttt{arguments}, hay que usar parámetros \textit{rest} (\texttt{...args}).
+		\end{itemize}
+	\end{description}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{quote}
+		Escriba una función en JS choose(p, f, g) que retorne una función de x que retorna f(x) si p(x) es verdadero y retorna g(x) en caso contrario
+		Ejemplos
+		choose(x => x > 0, x => x**2, x => x + 1)(5) // retorna 25
+		choose(x => x > 0, x => x**2, x => x + 1)(-5) // retorna -4
+	\end{quote}
+	
+	\subsection*{Solución al planteamiento}
+	
+	Se solicita una función choose(p, f, g) que:
+	
+	\begin{itemize}
+		\item p: es una función predicado (retorna true o false al evaluar x)
+		\item f: es una función que se aplica si el predicado es verdadero
+		\item g: es una función que se aplica si el predicado es falso
+	\end{itemize}
+	
+	Función choose retorna otra función que reciba x, y luego:
+	
+	\begin{itemize}
+		\item Si p(x) es true, retorna f(x)
+		\item Si p(x) es false, retorna g(x)
+	\end{itemize}
+	
+	\begin{lstlisting}[language=JavaScript,caption={classic function}]
+		function choose(p, f, g) {
+			return function (x) {
+				if (p(x)) {
+					return f(x);
+				} else {
+					return g(x);
+				}
+			};
+		}
+		
+		console.log(
+		choose(
+		(x) => x > 0,
+		(x) => x ** 2,
+		(x) => x + 1
+		)(5)
+		); // 25
+		console.log(
+		choose(
+		(x) => x > 0,
+		(x) => x ** 2,
+		(x) => x + 1
+		)(-5)
+		); // -4
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={arrow function}]
+		const choose = (p, f, g) => (x) => p(x) ? f(x) : g(x);
+		
+		console.log(
+		choose(
+		(x) => x > 0,
+		(x) => x ** 2,
+		(x) => x + 1
+		)(5)
+		); // 25
+		console.log(
+		choose(
+		(x) => x > 0,
+		(x) => x ** 2,
+		(x) => x + 1
+		)(-5)
+		); // -4
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{quote}
+		Escriba id la función identidad: es decir, para cualquier x se cumple id(x) = x.
+	\end{quote}
+	
+	\subsection*{Solución al planteamiento}
+	
+	Esta función devuelve exactamente lo que recibe. No lo transforma, procesa o modifica.
+	
+	\begin{lstlisting}[language=JavaScript,caption={classic function}]
+		function id(x) {
+			return x;
+		}
+		
+		console.log(id(5)); // 5
+		console.log(id("Hola")); // Hola
+		console.log(id(true)); // true
+		console.log(id([1, 2, 3])); // [1, 2, 3]
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={arrow function}]
+		const id = (x) => x;
+		
+		console.log(id(5)); // 5
+		console.log(id("Hola")); // Hola
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{quote}
+		Escriba una función repeat(n, f) que retorne una función de x que calcula f**n(x) = f(f(...f(x)...)) donde f está aplicada n veces sobre x (este ejercicios es "peludillo")
+		Ejemplos
+		repeat(0, id)(666) // retorna 666
+		repeat(5, x => 2 * x)(1) // retorna 32
+	\end{quote}
+	
+	\subsection*{Solución al planteamiento}
+	
+	Queremos una función repeat(f, n) que retorne otra función de x, y que aplique f exactamente n veces sobre x. Pero, hay casos especiales:
+	
+	\begin{itemize}
+		\item Si n = 0 no se aplica f (se devuelve el valor original)
+		\item Si n > 0 aplicar f las n veces
+	\end{itemize}
+	
+	\textbf{NOTA: USAMOS let CUANDO SE NECESITE UNA VARIABLE QUE PUEDA CAMBIAR SU VALOR, PERO LIMITADA AL BLOQUE DONDE SE DECLARE.}
+	
+	\begin{lstlisting}[language=JavaScript,caption={arrow function}]
+		const repeat = (n, f) => (x) => {
+			let result = x;
+			
+			for (let i = 0; i < n; i++) {
+				result = f(result);
+			}
+			
+			return result;
+		};
+		
+		console.log(repeat(0, (x) => x)(666)); // 666
+		console.log(repeat(5, (x) => 2 * x)(1)); // 32, porque 2*1 = 2, 2*2 = 4, 2*4 = 8, 2*8 = 16, 2*16 = 32 (5 veces en total)
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={recursive (ChatGPT helped me)}]
+		const repeat = (n, f) => (x) => n === 0 ? x : repeat(n - 1, f)(f(x));
+		
+		console.log(repeat(0, (x) => x)(666));
+		console.log(repeat(5, (x) => 2 * x)(1));
+	\end{lstlisting}
+	
+\end{document}
