@@ -1,0 +1,36 @@
+*** Casting ***
+Pedro:
+	.sin Rol
+Luis:
+	.como Pareja
+	.como Bailante
+Refugios:
+	.sin Rol
+María:
+	.como Pareja
+	.como Bailante
+Ana:
+	.como Discursante
+	.como Testificante
+
+*** Probando Evento; Casamiento ***
+Pedro llora
+Luis da el sí
+Refugios rie
+María da el sí
+
+*** Probando Evento: Firma ***
+Pedro llora
+Refugios llora
+Ana firma como testigo legal.
+
+*** Probando Evento: Brindis ***
+Pedro llora
+Refugios rie
+Ana da un emotivo discurso.
+
+*** Probando Evento: Vals ***
+Pedro llora
+Luis baila el primer vals.
+Refugios rie
+María baila el primer vals.

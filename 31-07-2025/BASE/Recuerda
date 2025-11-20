@@ -1,0 +1,85 @@
+-Crear Clase Evento como un enum
+
+-Cada rol se asocia a un evento. Interfaz rol tiene dos metodos:
+*boolean reaccionaA(Evento evento); y *void ejecutar(Persona persona)
+
+-Rol none implementa Rol ---> Tiene un private static final Random. Recordar en ejecutar el
+if(random.nextBoolean())
+.... sout(persona.getNombre() + " llora"); o rie...
+
+
+--En otros roles:
+*En metodo reaccionaA igualar: evento == Evento.ALGO
+
+--Clase Persona:
+
+Esta clase tendra los metodos de agregarRol y reaccionar. Recordar los getters
+
+Va a tener dos atributos:
+protected String nombre;
+protected List<Roles> roles = new ArrayList();
+
+Metodos importantes a entender:
+
+public void reaccionar(Evento evento) {
+    boolean reacciono = false;
+    
+    for (Rol rol : roles) {
+        if (rol.reaccionaA(evento)) {
+            rol.ejecutar(this); reacciono = true;
+        }
+    }
+    if (!reacciono) { new None().ejecutar(this); } 
+}
+
+public void imprimirRoles() {
+    if (roles.isEmpty()) { sout("\t.sin rol"); return; }
+    
+    for (Rol  rol :  roles) {
+        if (rol instance of Pareja) { sout("\t.como Pareja"); }....
+    }
+}
+
+--Clase Boda:
+
+Va a tener atributos:
+
+public static final List<Persona> participantes =  new ArrayList<>();
+
+//Registrar una persona sin roles
+public static void registrar(Persona persona) { participantes.add(persona); }
+
+//Registrar varias personas
+public static void registrar(Persona... persona) { participantes.addAll(Arrays.asList(persona)); }
+
+//Registrar una persona con varios roles
+public static void registrar(Persona persona, Rol... rol) { 
+    for (Rol rol :  roles) {
+        persona.agregarRol(rol);
+    } 
+    if (!participantes.contains(persona)) {participantes.add(persona);}
+}
+
+//Para registrar varias personas con varios roles
+public static void registrar(List<Persona> personas, Rol... roles) {
+    for (Persona persona : personas) {
+        for (Rol rol : roles) {
+            persona.agregarRol(rol);
+        }
+        if(!participantes.contains(persona)) { participantes.add(persona); }
+    }
+}
+
+//Para mostrar participantes y sus roles
+public static void participantes() {
+    sout("*** Casting ***")
+    for (Persona p : participantes) { sout(p.getNombre() + ":"); p.imprimirRoles(); }
+    sout();
+}
+
+//Para creare evento y notificar
+public static void atencion(String titulo, Evento evento) {
+    sout("*** " + titulo + " ***");
+    for (Persona p : participantes) { p.reaccionar(evento); }
+    sout();
+}
