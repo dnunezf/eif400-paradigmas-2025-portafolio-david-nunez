@@ -1,0 +1,177 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 25/08/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Faceta declarativo (faceta de expresiones de lenguaje)
+		\item Faceta operativa (faceta de verbos imperativos de lenguaje)
+		\item Expresiones versus estatuto
+		\item FP Principio de declaratividad: preferir la faceta declarativa sobre la operacional imperativa
+		\item nodemon: Forma correcta de uso de node, para monitorear la carpeta actual de un archivo digamos main.mjs
+		\begin{itemize}
+			\item nodemon -w . main.mjs
+		\end{itemize}
+		\item Nociones módulos en JS, estándar MJS (export/import)
+		\item for -of: Variante del for basado en iterador (similar a for(var e:a){...} de Java)
+		\item Operador spread(...)
+		\item Predicado: Función que retorna algo booleano
+		\item Patrón de autómata que representa un típico ciclo de estados
+		\item COmbinadores map, filter, reduce de arrays (Se llama combinador a una función de funciones, usualmente. Eso viene de lógica combinatoria, que es otra forma de ver el cálculo lambda).
+	\end{itemize}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{quote}
+		1) Sea a es un array cualquiera y sean f y g funciones cualesquiera. ¿Bajo qué condiciones razonables que se pongan sobre f y/o g (según el caso) se cumplen las siguientes identidades?
+		
+		a) a.map(f) es lo mismo que a
+		b) a.map(f).map(g) tiene el mismo valor que a.map(g).map(f)
+		c) Escriba una expresión equivalente pero  más simple que a.filter(f).filter(g) asumiendo f y g son predicados (i.e. funciones que retornan true o false)
+	\end{quote}
+	
+	\subsection*{1.a}
+	
+	\subsubsection*{Premisa}
+	
+	\begin{quote}
+		a.map(f) es lo mismo que a
+	\end{quote}
+	
+	Se cumple si y sólo si $f(x) = x$ para todo $x \in a$, es decir, cuando $f$ es la función identidad.  
+	Caso especial: si $a$ es vacío, la igualdad se cumple para cualquier $f$.
+	
+	\subsection*{1.b}
+	
+	\subsubsection*{Premisa}
+	
+	\begin{quote}
+		a.map(f).map(g) tiene el mismo valor que a.map(g).map(f)
+	\end{quote}
+	
+	Se cumple si y sólo si $g(f(x)) = f(g(x))$ para todo  $x \in a$.
+	Casos triviales: $f = id$ o $g = id$.
+	
+	\subsection*{1.c}
+	
+	\subsubsection*{Premisa}
+	
+	\begin{quote}
+		Escriba una expresión equivalente pero más simple que a.filter(f).filter(g) asumiendo f y g son predicados (i.e. funciones que retornan true o false)
+	\end{quote}
+	
+	Equivalente:
+	
+	\begin{lstlisting}[language={JavaScript},caption={Equivalente}]
+		a.filter(x => f(x) && g(x))
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{verbatim}
+		Sea un array de k lambdas [f_1,...,f_k]. Se quiere calcular la función g que cumpla 
+		g(x) = f_1(f_2(...f_k(x)...)) usando FP. Asuma que para cada f_i el dominio y el 
+		codominio son iguales entre sí y e iguales entre todos los i.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	
+	Para aplicar composición de funciones, haremos uso de \textbf{reduceRight}, el cual aplica una función acumuladora recorriendo el arreglo de derecha a izquierda.
+	
+	\begin{lstlisting}[language=JavaScript, caption={Base de reduceRight}]
+		arr.reduceRight((acumulador elemento) => ..., valorInicial)
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript, caption={g(x) = f1(f2(...fk(x)...)) con FP}]
+		// DICHA DEFINICION SERA UNA COMPOSICION DE VARIAS FUNCIONES
+		const composeAll = (fs) =>
+		fs.reduceRight(
+		(g, f) => (x) => f(g(x)),
+		(x) => x
+		);
+		
+		// ALGUNAS LAMBDAS QUE NOS SERVIRAN COMO PRUEBA
+		const f1 = (x) => x + 1;
+		const f2 = (x) => x * 2;
+		const f3 = (x) => x * x;
+		
+		// CREAMOS EL ARRAY DE FUNCIONES
+		const fs = [f1, f2, f3];
+		
+		// APLICAMOS g(x) = f1(f2(f3(x)))
+		const g = composeAll(fs);
+		
+		// Pruebas
+		console.log(`g(2) = ${g(2)}`); // Deberia ser f1(f2(f3(2))) = ( (2^2)*2 ) + 1 = 9
+		console.log(`g(3) = ${g(3)}`); // Deberia ser f1(f2(f3(3))) = ( (3^2)*2 ) + 1 = 19
+	\end{lstlisting}
+
+\end{document}

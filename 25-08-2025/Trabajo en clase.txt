@@ -1,0 +1,41 @@
+JS utiliza dos módulos:
+-common.js
+-mjs
+
+Levantamos nodemon en nuestra carpeta de trabajo -aqui-
+
+nodemon --watch . main.mjs
+
+Ejemplo en node de combinadores
+
+... = operador que inserta en hileras lo que se desea
+
+> a = [..."abcdefg"]
+[
+  'a', 'b', 'c',
+  'd', 'e', 'f',
+  'g'
+]
+> a = ["inicio", ..."abcdefg", "final"]
+[
+  'inicio', 'a',
+  'b',      'c',
+  'd',      'e',
+  'f',      'g',
+  'final'
+]
+> a.map(c => c.toUpperCase())
+[
+  'INICIO', 'A',
+  'B',      'C',
+  'D',      'E',
+  'F',      'G',
+  'FINAL'
+]
+
+> vowels = [..."aeiou"]
+[ 'a', 'e', 'i', 'o', 'u' ]
+> a.filter(c => vowels.includes(c))
+[ 'a', 'e' ]
+> a.filter(c => vowels.includes(c)).map(v => v.toUpperCase())
+[ 'A', 'E' ]

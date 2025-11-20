@@ -1,0 +1,27 @@
+Sobre Stream:
+
+
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ jshell
+|  Welcome to JShell -- Version 21.0.8
+|  For an introduction type: /help intro
+
+jshell> Stream.of(1, 2, 3).map(x -> x * 2).collect(Collectors.toList())
+$1 ==> [2, 4, 6]
+
+jshell> Stream.iterate(0, x -> x + 1)
+$2 ==> java.util.stream.ReferencePipeline$Head@604ed9f0
+
+jshell> Stream.iterate(0, x -> x + 1).limit(10)
+$3 ==> java.util.stream.SliceOps$1@6093dd95
+
+jshell> Stream.iterate("Ay", x -> x + "ay").limit(10).forEach(ay -> System.out.println(ay))
+Ay
+Ayay
+Ayayay
+Ayayayay
+Ayayayayay
+Ayayayayayay
+Ayayayayayayay
+Ayayayayayayayay
+Ayayayayayayayayay
+Ayayayayayayayayayay

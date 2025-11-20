@@ -1,0 +1,209 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 22/09/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item FP Pattern-matching alias desestructuración en ES67Java
+		\item Noción de patrón. De Parámetro formal a Descripción de estructura del dato
+		\item Eliminación de "boiler-plate" code 
+		\item Desestructuración en ES6:
+		\item Uso en funciones
+		\item Uso válido en let (similar en lambdas, const, var). 
+		\begin{itemize}
+			\item let [first, ...rest] = [1,2,3]; // first es 1 rest =[2, 3]
+		\end{itemize}
+		\item Problemas con "fallas silenciosas" (undefined)
+		\item Caso java: record como clase simplificada. Solución a DTO, POJO
+		\item interfaces/clases selladas: restringiendo la 'O' de SOLID.
+		\item switch como expresión patrones y cases
+		\item throw como expresión en switch
+	\end{itemize}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{verbatim}
+		3) Represente un tuple (x, y) en Java (coordenadas x y y cada una de cualquier tipo)
+		Debe funcionar lo siguiente:
+		record Tuple<X, Y>(X x, Y y){}
+		var manzana_peso_100 = new Tuple<String, Integer>("manzana", 100)
+		System.out.println("El peso de la" + manzana_peso_100.x() + "es:" + manzana_peso_100.y())
+		var longitud_latitud_Heredia = new Tuple<Double, Double>(9.99872, -84.11587)
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=Java,caption={class Tuple}]
+		package demo;
+		
+		// Tuple generico de dos elementos
+		record Tuple<X, Y>(X x, Y y) { }
+		
+		public class TupleDemo {
+			public static void main(String[] args) {
+				// EJEMPLO 1: String e Integer
+				var manzana_peso_100 = new Tuple<String, Integer>("manzana",100);
+				System.out.println("El peso de la " + manzana_peso_100.x() + " es: " + manzana_peso_100.y());
+				
+				// EJEMPLO 2: Double y Double
+				var longitud_latitud_Heredia = new Tuple<Double, Double>(9.99872, -84.11587);
+				System.out.println("Coordenadas Heredia: (" + longitud_latitud_Heredia.x() + ", " + longitud_latitud_Heredia.y() + ")");
+			}
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 4}
+	
+	\begin{verbatim}
+		Considere el modelo demo Ast.java. Añada las demás operaciones aritméticas. Evite repetir patrones en el evaluate. Hint: una tabla hash (Map) de lambdas. Incluya suma, resta, multiplicación, división y módulo.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=Java,caption={class Ast}]
+		package demo;
+		
+		import java.util.Map;
+		import java.util.function.IntBinaryOperator;
+		
+		// Interfaz sellada, permite solo que se implemente Num, Op
+		sealed interface Node permits Num, Op, BinaryOp {}
+		// El compilador automaticamente agrega getters, toString, hasheable
+		record Num(int value) implements Node { }
+		record Op(String name) implements Node { }
+		record BinaryOp(Op oper, Node left, Node right) implements Node {}
+		
+		public class Ast {
+			// Tabla de operaciones
+			private static final Map<String, IntBinaryOperator> OPS = Map.of(
+			"+", (a, b) -> a + b,
+			"-", (a, b) -> a - b,
+			"*", (a, b) -> a * b,
+			"/", (a, b) -> a / b,
+			"%", (a, b) -> a % b
+			);
+			
+			// Aqui aplicamos pattern-matching (metodos deben ir dentro de la clase AST, no fuera)
+			static int evaluate(Node n) {
+				return switch(n) {
+					case Num(var value) -> value;
+					case Op(var name) -> throw new IllegalStateException("Op not allowed");
+					// aplicar operaciones aritmeticas basicas
+					case BinaryOp(var oper, var left, var right) -> {
+						var f = OPS.get(oper.name());
+						if (f == null)
+						throw new IllegalStateException("Unknown op: " + oper.name());
+						yield f.applyAsInt(evaluate(left), evaluate(right));
+					}
+				};
+			}
+			
+			static public void test_0() {
+				System.out.println("***test_0***");
+				
+				var ten = new Num(10);
+				System.out.println("ten=" + ten + " " + ten.value());
+				
+				var twenty = new Num(20);
+				
+				var oper = new Op("+");
+				System.out.println("oper=" + oper.name());
+				
+				var operation = new BinaryOp(oper, ten, twenty);
+				
+				System.out.println("operation=" + operation);
+				
+				System.out.println("operation=" + evaluate(operation) + "== 30?");
+				
+				operation = new BinaryOp(new Op("+"), ten, twenty);
+				System.out.println("10 + 20 = " + evaluate(operation));
+				
+				operation = new BinaryOp(new Op("-"), twenty, ten);
+				System.out.println("20 - 10 = " + evaluate(operation));
+				
+				operation = new BinaryOp(new Op("*"), ten, twenty);
+				System.out.println("10 * 20 = " + evaluate(operation));
+				
+				operation = new BinaryOp(new Op("/"), twenty, ten);
+				System.out.println("20 / 10 = " + evaluate(operation));
+				
+				operation = new BinaryOp(new Op("%"), twenty, ten);
+				System.out.println("20 % 10 = " + evaluate(operation));
+			}
+			
+			static public void main(String... args) {
+				test_0();
+			}
+		}
+	\end{lstlisting}
+	
+	
+	
+\end{document}

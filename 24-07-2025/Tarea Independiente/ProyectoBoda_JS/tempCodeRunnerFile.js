@@ -1,0 +1,4 @@
+
+const boda = crearBoda();
+
+/*Personas*/

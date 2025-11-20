@@ -1,0 +1,6 @@
+Para ejecutar codigo java en terminal:
+
+Abrir terminal desde el lugar en el que se encuentran las clases
+
+javac *.java
+java _nombre_clase_ejecutar

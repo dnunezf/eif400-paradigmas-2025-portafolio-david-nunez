@@ -1,0 +1,587 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{purple}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+\lstset{
+	language=Java,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b
+}
+
+\title{Tarea Independiente 24/07/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves (punto 0)}
+	
+	\begin{itemize}
+		\item Diagrama de Venn L-C-P (L: Lenguaje, P: Paradigma, C: Compilador/Traductor)
+		\item Paradigma en filosofía de la ciencia (Thomas Kuhn)
+		\item Realidad Objetiva versus Subjetiva. Positivismo
+		\item Paradigma de Programación
+		\item OOP: Sustantivos primero. Verbo supeditado a sustantivo (conducta del sustantivo)
+		\item FP: Verbo primero. Pueden existir sin sustantivo
+		\item LP: Relaciones primero. Pueden existir sin sustantivo
+	\end{itemize}
+	
+	\section*{Problema (punto 1)}
+			"La boda": Suponga que se está planificando una gran boda y hay distintos tipos de personas involucradas: novios, padres, padrinos, invitados, fotógrafos, músicos, cocineros y potencialmente otros más. Y hay tambien muchas funciones o roles: quién baila el primer vals, quién da el discurso, quién corta el pastel, quién firma como testigo, etc. hay relaciones estáticas (se conocen en tiempo de compilación). La relación entre personas y roles no es estática (es dinámica) y no es funcional en ninguna dirección. Su solución tiene casos de prueba separados del modelo y compila y corre desde una consola. Ningún rol es completamente abstracto. 
+	\subsection*{Planteamiento del problema}
+	
+	\begin{quote}
+		"La boda": Suponga que se está planificando una gran boda y hay distintos tipos de personas involucradas: novios, padres, padrinos, invitados, fotógrafos, músicos, cocineros y potencialmente otros más. Y hay tambien muchas funciones o roles: quién baila el primer vals, quién da el discurso, quién corta el pastel, quién firma como testigo, etc. hay relaciones estáticas (se conocen en tiempo de compilación). La relación entre personas y roles no es estática (es dinámica) y no es funcional en ninguna dirección. Su solución tiene casos de prueba separados del modelo y compila y corre desde una consola. Ningún rol es completamente abstracto. 
+	\end{quote}
+	
+	\subsection*{Análisis del Problema}
+	
+	\subsubsection*{ENTIDADES}
+	\begin{itemize}
+		\item \textbf{Persona}: Clase padre para los asistentes {novios, padres, padrinos, invitados...}.
+		\item \textbf{Rol}: Acciones a desempeñar una persona (bailar el primer vals, dar discurso...).
+		\item \textbf{Boda}: Coordinar personas y roles.		
+	\end{itemize}
+	
+	\subsubsection*{Relaciones}
+	\begin{itemize}
+		\item \textbf{Persona <-> Rol}: Se comportará como una relación dinámica y no funcional. Una persona puede tener múltiples roles, y un rol puede ser desempeñado por múltiples personas.
+		\item \textbf{Subclases Persona}: Novio, Padre, Padrino, Invitado, Fotógrafo, Músico.
+		\item \textbf{Subclases Rol}: BailarPrimerVals, DarDiscurso, CortarPastel, FirmarTestigo
+	\end{itemize}
+	
+	subsubsection*{A considerar}
+	\begin{enumerate}
+		\item Crear personas con distintos tipos y crear roles concretos.
+		\item Asignar dinámicamente uno o varios roles a personas, y viceversa.
+		\item Saber qué persona tiene qué rol y viceversa.
+	\end{enumerate}
+	
+	\subsection*{Solución al planteamiento del problema en Java, aplicando paradigma OOP}
+	
+	\begin{lstlisting}[caption={Clase Persona en Java}]
+		public abstract class Persona {
+			protected String nombre;
+			
+			public Persona(String nombre) {
+				this.nombre = nombre;
+			}
+			
+			public String getNombre() {
+				return nombre;
+			}
+			
+			@Override
+			/*toString que permite obtener el nombre concreto de la clase, para mostrarlo en el mensaje*/
+			public String toString() {
+				return this.getClass().getSimpleName() + ": " + nombre;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Novio en Java}]
+		public class Novio extends Persona{
+			
+			public Novio(String nombre) {
+				super(nombre);
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Padre en Java}]
+		public class Padre extends Persona{
+			
+			public Padre(String nombre) {
+				super(nombre);
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Padrino en Java}]
+		public class Padrino extends Persona{
+			
+			public Padrino(String nombre) {
+				super(nombre);
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Invitado en Java}]
+		public class Invitado extends Persona{
+			
+			public Invitado(String nombre) {
+				super(nombre);
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Rol en Java}]
+		public abstract class Rol {
+			protected String nombre;
+			
+			public Rol(String nombre) {
+				this.nombre = nombre;
+			}
+			
+			public String getNombre() {
+				return nombre;
+			}
+			
+			@Override
+			public String toString() {
+				return this.getClass().getSimpleName() + ": " + nombre;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase BailarPrimerVals en Java}]
+		public class BailarPrimerVals extends Rol{
+			public BailarPrimerVals() {
+				super("Bailar el primer vals");
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase DarDiscurso en Java}]
+		public class DarDiscurso extends Rol{
+			
+			public DarDiscurso() {
+				super("Dar el discurso");
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase CortarPastel en Java}]
+		public class CostarPastel extends Rol{
+			public CostarPastel() {
+				super("Cortar el pastel");
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase FirmarComoTestigo en Java}]
+		public class FirmarComoTestigo extends Rol{
+			public FirmarComoTestigo() {
+				super("Firmar como testigo");
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Boda en Java}]
+		import java.util.*;
+
+		public class Boda {
+			private List<Persona> personas;
+			
+			/*Este atributo va a representar la relacion dinamica entre roles y personas
+			* La clave es Rol, y el valor (SetPersona) es quien desempena.
+			* Se una un set para evitar duplicados, ya que una misma persona no aparece en dos roles*/
+			private Map<Rol, Set<Persona>> rolesAsignados;
+			
+			public Boda() {
+				this.personas = new ArrayList<>();
+				this.rolesAsignados = new HashMap<>();
+			}
+			
+			public void agregarPersona(Persona persona) {
+				personas.add(persona);
+			}
+			
+			public void asignarRol(Persona persona, Rol rol) {
+				rolesAsignados.computeIfAbsent(rol, k -> new HashSet<>()).add(persona);
+			}
+			
+			/*Se va a recorrer la lista de personas y, para cada una, busca en el mapa de roles si se encuentra
+			* asignada a algun rol*/
+			public void mostrarRolesPorPersona() {
+				for (Persona persona : personas) {
+					System.out.println(persona);
+					
+					for(Map.Entry<Rol, Set<Persona>> entry : rolesAsignados.entrySet()) {
+						if (entry.getValue().contains(persona)) {
+							System.out.println(" -> " + entry.getKey().getNombre());
+						}
+					}
+				}
+			}
+			
+			/*Muestra todas las personas agrupadas por el rol a desempenar*/
+			public void mostrarPersonasPorRol() {
+				for(Map.Entry<Rol, Set<Persona>> entry :  rolesAsignados.entrySet()) {
+					System.out.println(entry.getKey().getNombre() + ":");
+					
+					for(Persona persona : entry.getValue()) {
+						System.out.println(" - " + persona.getNombre());
+					}
+				}
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Main en Java}]
+		public class Main {
+			public static void main(String[] args) {
+				Boda boda = new Boda();
+				
+				Persona novio = new Novio("David");
+				Persona novia = new Novio("Lucia");
+				Persona padre = new Padre("Ernesto");
+				Persona padrino = new Padrino("Chavarria");
+				Persona invitado =  new Invitado("Gabriel");
+				
+				boda.agregarPersona(novio);
+				boda.agregarPersona(novia);
+				boda.agregarPersona(padre);
+				boda.agregarPersona(padrino);
+				boda.agregarPersona(invitado);
+				
+				Rol vals = new BailarPrimerVals();
+				Rol discurso = new DarDiscurso();
+				Rol pastel = new CostarPastel();
+				Rol testigo = new FirmarComoTestigo();
+				
+				boda.asignarRol(novio, vals);
+				boda.asignarRol(novia, vals);
+				boda.asignarRol(padre, discurso);
+				boda.asignarRol(padrino, testigo);
+				boda.asignarRol(invitado, pastel);
+				
+				System.out.println("==ROLES POR PERSONA==");
+				boda.mostrarRolesPorPersona();
+				
+				System.out.println("\nPERSONAS POR ROL");
+				boda.mostrarPersonasPorRol();
+			}
+		}
+	\end{lstlisting}
+	
+	\subsection*{Solución al planteamiento del problema en JavaScript, aplicando paradigma FP}
+	
+	\begin{lstlisting}[language=JavaScript, caption={Implementación `La Boda` en JavaScript}]
+		/*Crear a la Persona, con el nombre y el tipo*/
+		
+		function crearPersona(nombre, tipo) {
+			return {
+				nombre,
+				tipo,
+				toString: function () {
+					return `${tipo}: ${nombre}`;
+				},
+			};
+		}
+		
+		/*Crear el Rol, con el nombre*/
+		
+		function crearRol(nombre) {
+			return { nombre };
+		}
+		
+		/*Funcion que estructura la boda*/
+		
+		function crearBoda() {
+			const personas = [];
+			const rolesAsignados = new Map(); /*Es decir, Map<Rol, Set<Persona>>*/
+			
+			function agregarPersona(persona) {
+				personas.push(persona);
+			}
+			
+			function asignarRol(persona, rol) {
+				if (!rolesAsignados.has(rol)) {
+					rolesAsignados.set(rol, new Set());
+				}
+				rolesAsignados.get(rol).add(persona);
+			}
+			
+			function mostrarRolesPorPersona() {
+				/*Recorremos todas las personas agregadas a la boda*/
+				for (const persona of personas) {
+					console.log(persona.toString());
+					
+					/*Recorremos todas las asignaciones de roles*/
+					for (const [rol, personasAsignadas] of rolesAsignados.entries()) {
+						/*Si la persona tiene ese rol asignado, lo muestra*/
+						if (personasAsignadas.has(persona)) {
+							console.log(` -> ${rol.nombre}`);
+						}
+					}
+				}
+			}
+			
+			function mostrarPersonasPorRol() {
+				/*Recorremos las asignaciones de roles*/
+				for (const [rol, personasAsignadas] of rolesAsignados.entries()) {
+					console.log(`${rol.nombre}:`);
+					
+					/*Muestra el nombre de cada persona que tiene asignado ese rol*/
+					for (const persona of personasAsignadas) {
+						console.log(` - ${persona.nombre}`);
+					}
+				}
+			}
+			
+			return {
+				agregarPersona,
+				asignarRol,
+				mostrarRolesPorPersona,
+				mostrarPersonasPorRol,
+			};
+		}
+		
+		/*Crear la boda*/
+		const boda = crearBoda();
+		
+		/*Personas*/
+		const david = crearPersona("David", "Novio");
+		const lucia = crearPersona("Lucia", "Novia");
+		const ernesto = crearPersona("Ernesto", "Padre");
+		const chavarria = crearPersona("Chavarria", "Padrino");
+		const sofia = crearPersona("Sofia", "Invitada");
+		
+		/*Agregar personas*/
+		boda.agregarPersona(david);
+		boda.agregarPersona(lucia);
+		boda.agregarPersona(ernesto);
+		boda.agregarPersona(chavarria);
+		boda.agregarPersona(sofia);
+		
+		/*Roles*/
+		const vals = crearRol("Bailar el primer vals");
+		const discurso = crearRol("Dar el discurso");
+		const pastel = crearRol("Cortar el pastel");
+		const testigo = crearRol("Firmar como testigo");
+		
+		/*Asignar roles*/
+		boda.asignarRol(david, vals);
+		boda.asignarRol(lucia, vals);
+		boda.asignarRol(ernesto, discurso);
+		boda.asignarRol(chavarria, testigo);
+		boda.asignarRol(sofia, pastel);
+		
+		console.log("=== ROLES POR PERSONA ===");
+		boda.mostrarRolesPorPersona();
+		
+		console.log("\n=== PERSONAS POR ROL ===");
+		boda.mostrarPersonasPorRol();
+	\end{lstlisting}
+	
+	\section*{Problema (punto 2)}
+	
+		\begin{quote}
+			
+		En modelamiento algebraico de datos (abstract data types, ADTs) hay datos puros que no tiene métodos de lógica especial (a lo más getters y formas de serialización como hileras, alis toString). Son inmutables (no se puede cambiar su estado, solo inicializarlo durante creación). En Java a ese tipo de dato se le dice un POJO (plain old data object). Su solución tiene casos de prueba separados del modelo y compila y corre desde una consola. Restricción: no usar 'instanceOf'
+		
+			\begin{itemize}
+				\item Modele los números naturales como ADTs.
+				\item Modele la suma de naturales sin usar la suma primitiva durante la operación. Añada un toString que permita ver al nat como número en decimal
+			\end{itemize}
+		\end{quote}
+	
+	\subsection*{POJO (Plain Old Java Object) en Java}
+	
+	Características fundamentales:
+	
+	\begin{itemize}
+		\item Dato puro que no tiene métodos de lógica especial (a lo sumo getters, hileras, toString) y funciones puras (add, succ).
+		\item Inmutables.
+		\item NO debe extender de otra clase (no puede ser clase hija).
+		\item Usar implements de una interfaz simple.
+		\item NO debe usar anotaciones sofisticadas ni frameworks.
+	\end{itemize}
+	
+	\subsection*{Modelo de números naturales como ADT's, aplicando concepto de POJO en Java}
+	
+	\begin{lstlisting}[caption={Clase Nat en Java}]
+		/*Interfaz que representa los naturales*/
+		public interface Nat {
+			int toInt(); // Serializar los numeros a enteros
+			String toString(); // Representar como texto
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Zero en Java}]
+		/*Representa el numero 0*/
+		
+		public final class Zero implements Nat {
+			
+			public Zero() {
+				
+			}
+			
+			@Override
+			public int toInt() {
+				return 0;
+			}
+			
+			@Override
+			public String toString() {
+				return "cero";
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Succ en Java}]
+		/*Representa el sucesor de un numero natural*/
+		public final class Succ implements Nat {
+			private final Nat prev;
+			
+			public Succ(Nat prev) {
+				this.prev = prev;
+			}
+			
+			public Nat getPrev() {
+				return prev;
+			}
+			
+			@Override
+			public int toInt() {
+				return 1 + prev.toInt();
+			}
+			
+			@Override
+			public String toString() {
+				return "Sucesor(" + prev.toString() + ")";
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Main en Java}]
+		public class Main {
+			public static void main(String[] args) {
+				Nat zero = new Zero();
+				Nat one = new Succ(zero);
+				Nat two = new Succ(one);
+				Nat three = new Succ(two);
+				
+				System.out.println("cero: " + zero.toString() + " = " + zero.toInt());
+				System.out.println("uno: " + one.toString() + " = " + one.toInt());
+				System.out.println("dos: " + two.toString() + " = " + two.toInt());
+				System.out.println("tres: " + three.toString() + " = " + three.toInt());
+			}
+		}
+	\end{lstlisting}
+	
+	\subsection*{Modelo de suma de números naturales sin usar suma primitiva, aplicando concepto de POJO en Java}
+	
+	\begin{lstlisting}[caption={Clase Nat en Java}]
+		/*Interfaz que simula los numeros naturales*/
+		public interface Nat {
+			Nat add(Nat other); // Esta es nuestra suma recursiva
+			int toInt(); // Conversion a Int
+			String toString(); // Texto decimal
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Zero en Java}]
+		/*Representa el numero 0*/
+		public final class Zero implements Nat{
+			public Zero() {
+				
+			}
+			
+			@Override
+			public Nat add(Nat other) {
+				/*0 + n = n*/
+				return other;
+			}
+			
+			@Override
+			public int toInt() {
+				return 0;
+			}
+			
+			@Override
+			public String toString() {
+				/*Convierte un entero a su representacion en cadena*/
+				return String.valueOf(toInt());
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Succ en Java}]
+		/*Representa el numero natural sucesor*/
+		public final class Succ implements Nat{
+			private final Nat prev;
+			
+			public Succ(Nat prev) {
+				this.prev = prev;
+			}
+			
+			public Nat getPrev() {
+				return prev;
+			}
+			
+			@Override
+			public Nat add(Nat other) {
+				// Suma(n) + m = Suma(n + m)
+				return new Succ(prev.add(other));
+			}
+			
+			@Override
+			public int toInt() {
+				return 1 + prev.toInt();
+			}
+			
+			@Override
+			public String toString() {
+				return String.valueOf(toInt());
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Main en Java}]
+		public class Main {
+			public static void main(String[] args) {
+				Nat zero = new Zero();
+				Nat one = new Succ(zero);
+				Nat two = new Succ(one);
+				Nat three = new Succ(two);
+				
+				Nat suma1 = two.add(three); // 2 + 3
+				Nat suma2 = three.add(three); // 3 + 3
+				Nat suma3 = three.add(zero); // 3 + 0
+				
+				System.out.println(suma1.toString());
+				System.out.println(suma2.toString());
+				System.out.println(suma3.toString());
+			}
+		}
+	\end{lstlisting}
+	
+\end{document}
