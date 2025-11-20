@@ -1,0 +1,297 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 18/09/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Problema de ambigüedad de una gramática
+		\item Solución en ANTLR por orden de reglas
+		\item Objeto contexto (CTX) en ANTLR
+		\item Relación entre regla y propiedades o métodos del contexto en ANTLR
+		\item El visitor generado por ANTLR 
+		\item Interceptando métodos por medio de herencia en visitadores específicos
+	\end{itemize}
+	
+	\section*{Ejercicio 0}
+	
+	\begin{quote}
+		Modifique la tokenización de número de Expr.g4 para que correctamente permita casos como .25,  y 1. como números.
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Expr.g4}]
+		// LEXER
+		fragment DIGITS : [0-9]+ ;
+		
+		// LEXER
+		FLOAT 
+		  : DIGITS '.' DIGITS? ( [eE] [+\-]? DIGITS )?
+		  | '.' DIGITS         ( [eE] [+\-]? DIGITS )?
+		  | DIGITS [eE] [+\-]? DIGITS
+		  ;
+		
+		// LEXER
+		INT : DIGITS ;
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={EvalVisitor.mjs}]
+		// float: FLOAT
+		visitFloat(ctx) {
+			return Number(ctx.getText());
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Casos de Prueba}]
+		*** Expresso REPL (enter '.exit' to end session) ***
+		> .25
+		0.25
+		> 1.
+		1
+		> 1.+.25*2
+		1.5
+	\end{lstlisting}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{quote}
+		Añada un operador ternario tipo Java(C) (?:) al demo y logre que se evalúa en el repl. Que tenga más prioridad que los aritméticos.
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Expr.g4}]
+		// Expresiones con precedencia y unario '-' (parser)
+		expr
+		  : '-' expr                                # unaryMinus
+		  | <assoc=right> expr '?' expr ':' expr    # ternary
+		  | expr op=('*'|'/') expr                  # MulDiv
+		  | expr op=('+'|'-') expr                  # AddSub
+		  | INT                                     # int
+		  | FLOAT                                   # float
+		  | '(' expr ')'                            # parens
+		  ;
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={ast.mjs}]
+		export class TernaryOp extends Operation {
+			constructor(cond, thenExpr, elseExpr) {
+				super(new Oper('?:'), cond, thenExpr, elseExpr)
+			}
+			
+			get cond() { return this.children[0] }
+			get thenExpr() { return this.children[1] }
+			get elseExpr() { return this.children[2] }
+			toString() { return `${this.cond} ? ${this.thenExpr} : ${this.elseExpr}` }
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={AstBuilder.mjs}]
+		// ternary: expr '?' expr ':' expr
+		visitTernary(ctx) {
+			const c = this.visit(ctx.expr(0));
+			const t = this.visit(ctx.expr(1));
+			const e = this.visit(ctx.expr(2));
+			return new TernaryOp(c, t, e);
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={EvalAst.mjs}]
+		if (node instanceof TernaryOp) {
+			const c = this.eval(node.cond);
+			return (Number(c) !== 0) 
+			? this.eval(node.thenExpr)
+			: this.eval(node.elseExpr);
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={EvalVisitor.mjs}]
+		// ternary: expr '?' expr ':' expr
+		visitTernary(ctx) {
+			const c = Number(this.visit(ctx.expr(0)));
+			return c !== 0 ? this.visit(ctx.expr(1)) : this.visit(ctx.expr(2));
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Casos de Prueba}]
+		*** Expresso REPL (enter '.exit' to end session) ***
+		> 1?2:3
+		2
+		> 0?2:3
+		3
+		> 1+2?3:4
+		4
+		> 1?2+3:4*5
+		25
+		> 1?2:0?3:4
+		2
+		> 
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2} 
+	
+	\begin{quote}
+		Añada una expresión let de la forma de expresión let x = expr in expr. Por ahora no se puede evaluar porque no hemos visto ambientes (clausuras), pero haga que el evaluador diga un error que la está viendo al menos. Note que ocupa una regla id y una de tokenización respectiva. Ya el modelo ast tiene nodo para Id.
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Expr.g4}]
+		// Expresiones con precedencia y unario '-' (parser)
+		expr
+		 : '-' expr                                # unaryMinus
+		 | <assoc=right> expr '?' expr ':' expr    # ternary
+		 | expr op=('*'|'/') expr                  # MulDiv
+		 | expr op=('+'|'-') expr                  # AddSub
+		 | LET ID ASSIGN expr IN expr              # letExpr
+		 | ID                                      # idExpr
+		 | INT                                     # int
+		 | FLOAT                                   # float
+		 | '(' expr ')'                            # parens
+		 ;
+		
+		
+		// LEXER
+		fragment DIGITS : [0-9]+ ;
+		
+		// LEXER
+		FLOAT 
+		 : DIGITS '.' DIGITS? ( [eE] [+\-]? DIGITS )?
+		 | '.' DIGITS         ( [eE] [+\-]? DIGITS )?
+		 | DIGITS [eE] [+\-]? DIGITS
+		 ;
+		
+		// LEXER
+		INT     : DIGITS ;
+		LET     : 'let' ;
+		IN      : 'in' ;
+		ASSIGN  : '=' ;
+		ID      : [a-zA-Z_][a-zA-Z_0-9]* ; //acepta nombres tipo x, abc, total1, _tmp, my_var2.
+		NEWLINE : ('\r'? '\n') ;
+		WS      : [ \t]+ -> skip ;
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={ast.mjs}]
+		export class LetExpr extends Node {
+			constructor(id, valueExpr, bodyExpr) {
+				super(id, valueExpr, bodyExpr)
+			}
+			
+			get id(){ return this.head } // ID
+			get valueExpr(){ return this.children[0] }
+			get bodyExpr(){ return this.children[1] }
+			toString(){ return `let ${this.id} = ${this.valueExpr} in ${this.bodyExpr}` }
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={AstBuilder.mjs}]
+		// letExpr: LET ID ASSIGN expr IN expr
+		visitLetExpr(ctx) {
+			const name = ctx.ID().getText();
+			const id = new Id(name);
+			const val = this.visit(ctx.expr(0));
+			const body = this.visit(ctx.expr(1));
+			return new LetExpr(id, val, body);
+		}
+		
+		// idExpr: ID
+		visitIdExpr(ctx) {
+			return new Id(ctx.ID().getText());
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={EvalAst.mjs}]
+		if (node instanceof LetExpr) {
+			throw new Error(`LetExpr not supported yet: ${node.toString()}`);
+		}
+		
+		if (node instanceof Id) {
+			throw new Error(`Variable usage not supported yet: ${node.name}`);
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={EvalVisitor.mjs}]
+		// letExpr: LET ID ASSIGN expr IN expr
+		visitLetExpr(ctx) {
+			const id = ctx.ID().getText();
+			const val = this.visit(ctx.expr(0));
+			const bodyText = ctx.expr(1).getText();
+			throw new Error(`LetExpr not supported yet: let ${id} = ${val} in ${bodyText}`);
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Pruebas Funcionales}]
+		*** Expresso REPL (enter '.exit' to end session) ***
+		> let x = 2 in x+2
+		Error: LetExpr not supported yet: let x = 2 in x + 2
+		> 
+	\end{lstlisting}
+	
+\end{document}

@@ -1,0 +1,14 @@
+{
+  "name": "expresso-antlr-es6",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "antlr": "java -jar lib/antlr-4.13.2-complete.jar -Dlanguage=JavaScript -visitor -o generated -Xexact-output-dir grammar/Expr.g4",
+    "build": "npm run antlr",
+    "run": "node src/repl.mjs"
+  },
+  "dependencies": {
+    "antlr4": "^4.13.2"
+  }
+}
