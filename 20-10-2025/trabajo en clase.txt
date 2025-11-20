@@ -1,0 +1,102 @@
+// mal representacion:
+?- P = juan.
+P = juan.
+
+// representacion con estructura
+?- P = person(juan, 20, male).
+P = person(juan, 20, male).
+
+?- P = person(name(juan, perez), 20, male).
+P = person(name(juan, perez), 20, male).
+
+?- X = 1 + 2.
+X = 1+2.
+
+?- X = '+'.
+X = (+).
+
+// Si suma
+?- X is 1 + 2.
+X = 3.
+
+// Creacion de arbol binario
+?- X = bintree(5, nil, bintree(10, nil, nil)).
+X = bintree(5, nil, bintree(10, nil, nil)).
+
+// Esa x solo vive en esa linea, desaparecen esas asignaciones
+?- X = 666, Y = X + 1.
+X = 666,
+Y = 666+1.
+
+?- writeln(X).
+_16930 
+true.
+
+// Localmente, si imprime
+?- X = 666, writeln(X), Y = X + 1.
+666
+X = 666,
+Y = 666+1.
+
+?- X = 666, Y is X + 1.
+X = 666,
+Y = 667.
+
+?- X = 666, X is X + 1.
+false.
+
+// unificacion
+
+// son unificables? Que cambios debo hacerle a estos arboles para que sea un arbol comun?
+?- f(a, g(b, Y)) = f(X, g(a, b)).
+
+?- [f(X), g(g(a))] = [f(f(b)), g(Y)].
+X = f(b),
+Y = g(a).[]
+
+// sacar el primero y ultimo de la lista, lo que va despues del pipe es otra lista
+?- [F, S  |  R] = [1, 2, 3].
+F = 1,
+S = 2,
+R = [3].
+
+?- [F, S  |  R] = [1, 2, 3, 4, 5].
+F = 1,
+S = 2,
+R = [3, 4, 5].
+
+?- [F, S  |  [_, W | _]] = [1, 2, 3, 4, 5].
+F = 1,
+S = 2,
+W = 4.
+
+?- [F, S  |  [_, W | R]] = [1, 2, 3, 4, 5, 6].
+F = 1,
+S = 2,
+W = 4,
+R = [5, 6].
+
+
+?- [F, S  |  [_, W | R]] = [1, 2, 3, 4].
+F = 1,
+S = 2,
+W = 4,
+R = [].
+
+?- [F, S  |  [_, W | R]] = [1, 2, 3].
+false. // las listas no podrian unificarse, porque son de distinto tam.
+
+// Lo visto arriba, es una forma de des-estructurar una estructura de datos
+
+// Queremos sacar a abel por unificacion (getAbel)
+?- person(adan, 5000, [cain, abel]) = person(_, _, [_, S]).
+S = abel.
+
+// Saber cuantos hijos tiene adan
+?- person(adan, 5000, [cain, abel]) = person(_, _, Ch), length(Ch, N).
+Ch = [cain, abel],
+N = 2.
+
+?- person(adan, 5000, [cain, abel, jafeth]) = person(_, _, Ch), length(Ch, N).
+Ch = [cain, abel, jafeth],
+N = 3.

@@ -1,0 +1,40 @@
+Ejemplo en JavaScript:
+
+> a = ['a', 'z', 'x', 'e']
+[ 'a', 'z', 'x', 'e' ]
+> a[0]
+'a'
+> a.sort()
+[ 'a', 'e', 'x', 'z' ]
+> console.log(a)
+[ 'a', 'e', 'x', 'z' ]
+undefined
+> a
+[ 'a', 'e', 'x', 'z' ]
+> a = ['a', 'z', 'x', 'e']
+[ 'a', 'z', 'x', 'e' ]
+> a.toSorted()
+[ 'a', 'e', 'x', 'z' ]
+> a
+[ 'a', 'z', 'x', 'e' ]
+> 
+
+Otro ejemplo
+
+> let z = 666
+undefined
+> let foo = x => (z++, x + 10)
+undefined
+> foo(1)
+11
+> z
+667
+> 
+
+BETA-REDUCT para que logre ejecutar lo de la lambda
+
+> x => console.log('hola')
+[Function (anonymous)]
+> (x => console.log('hola'))()
+hola
+

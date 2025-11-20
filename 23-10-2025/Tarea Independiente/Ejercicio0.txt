@@ -1,0 +1,39 @@
+% foo(+N, -R): calcula el factorial de N, para N >= 0.
+% Usa un acumulador para calculo eficiente.
+
+% Caso inicial: se llama con N y se crea un acumulador que empieza en 1.
+foo(N, R) :-
+    foo(N, 1, R).
+
+% Caso base: cuando N llega a 0, el resultado es el acumulador actual (M).
+% El corte (!) indica que no hay mas caminos que probar.
+foo(0, M, M) :- 
+    !.
+
+% Caso recursivo: mientras N sea mayor que 0.
+% Se disminuye N en 1 y se multiplica el acumulador por el valor actual de N.
+% Luego se vuelve a llamar recursivamente con esos nuevos valores.
+foo(N, M, R) :-
+    N1 is N - 1,        % resta 1 a N
+    M1 is M * N,        % multiplica el acumulador por N
+    foo(N1, M1, R).     % llamada recursiva
+
+/*
+Ejemplos de uso:
+
+Paso a paso con N=5:
+
+1. foo(5,R) -> foo(5,1,R)
+
+2. foo(5,1,R) -> N1=4, M1=5 -> foo(4,5,R)
+
+3. foo(4,5,R) -> N1=3, M1=20 -> foo(3,20,R)
+
+4. foo(3,20,R) -> N1=2, M1=60 -> foo(2,60,R)
+
+5. foo(2,60,R) -> N1=1, M1=120 -> foo(1,120,R)
+
+6. foo(1,120,R) -> N1=0, M1=120 -> foo(0,120,R)
+
+foo(0,120,R) hace match con la base y, por el !, unifica R=120 y termina.
+*/

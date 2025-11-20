@@ -1,0 +1,151 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+
+\title{Tarea Independiente 21/07/2025\\Prueba de Prompt con \texttt{ollama3} y el modelo \texttt{gemma3}}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Resumen}
+	Como introducción al modelo gemma3 sobre la plataforma ollama3, se verificó si el modelo \texttt{gemma3} ejecutado con \texttt{Ollama} hace uso de una GPU en un sistema Linux. Luego, se realizó una prueba experimental utilizando el modelo \texttt{gemma3} sobre la plataforma \texttt{ollama3}. El objetivo fue ejecutar un prompt creativo y humorístico centrado en la cultura costarricense y el Club Sport Herediano, seguido de un análisis crítico sobre IA generativa como paradigma de programación.
+	
+	\section*{Verificación de uso de GPU en Ollama con el modelo \texttt{gemma3}}
+	
+	\subsection*{Ejecución del modelo con \texttt{--verbose}}
+	
+	Se corrió el modelo gemma3 usando el modo detallado (\texttt{--verbose}) para observar el tiempo de respuesta y posibles indicios del uso de GPU:
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.95\textwidth]{verbose.png}
+		\caption{Ejecución con --verbose}
+		\label{fig:01}
+	\end{figure}
+	
+	\subsection*{Verificación del tipo de procesador en uso}
+	
+	Para confirmar si el modelo estaba corriendo sobre CPU o GPU, se utilizó el comando \texttt{ollama ps}, que muestra el estado de ejecución actual del modelo:
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.95\textwidth]{ps.png}
+		\caption{Verificación con ollama ps}
+		\label{fig:02}
+	\end{figure}
+	
+	La salida indica que el modelo está usando \textbf{100\% CPU}, lo cual confirma que no se está utilizando GPU.
+	
+	\subsection*{Compatibilidad del modelo con mi máquina}
+	
+	Se investigó el soporte de GPU por parte de Ollama:
+	
+	\begin{itemize}
+		\item Ollama detecta automáticamente GPU compatibles (NVIDIA o Apple Silicon).
+		\item En este caso, mi equipo es un IdeaPad-5-15ITL05 con gráficos Intel integrados, los cuales actualmente no son compatibles con Ollama para ejecución en GPU.
+		\item No se cuenta con una tarjeta gráfica NVIDIA, por lo que no se puede usar nvidia-smi para confirmar la carga de GPU.
+	\end{itemize}
+	
+	\section*{Prompt Utilizado (Parte 2: Humor)}
+	
+	\begin{quote}
+		Eres un robot recién activado en Costa Rica, específicamente en la ciudad de Heredia. Al despertar, lo primero que ves es una camisa del Club Sport Herediano, y decides que tu propósito en la vida es convertirte en delantero estrella del "Team Florense". 
+		
+		Describe tu primer entrenamiento con el equipo: cómo tratas de usar tus piernas para hacer chilenas, confundes el balón con una olla arrocera, y en algún momento cantás el himno con acento argentino sin razón aparente. 
+		
+		Sé dramático, patriótico y exagerado. Mezcla términos de fútbol con referencias a Costa Rica: gallo pinto, "pura vida", "diay", etc. Termina con una declaración heroica al estilo novelero: ".... mi corazón es rojo y amarillo!".
+	\end{quote}
+	
+	\section*{Resultado (Parte 2)}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.95\textwidth]{hallazgo.png}
+		\caption{Respuesta humorística por parte del modelo}
+		\label{fig:03}
+	\end{figure}
+	
+	\section*{Prompt Utilizado (Parte 3: Análisis técnico con DeepSeek)}
+	
+	\begin{quote}
+		Reflexiona críticamente sobre si la inteligencia artificial generativa, especialmente modelos como ChatGPT o Codex, puede considerarse un nuevo paradigma de programación, más allá de los paradigmas tradicionales como la programación orientada a objetos (OOP), la programación funcional (FP) o la programación lógica (LP).
+		
+		En tu análisis, considera aspectos como:
+		\begin{itemize}
+			\item ¿Qué define un paradigma de programación?
+			\item ¿En qué se diferencia el uso de IA generativa frente a escribir código manualmente?
+			\item ¿La IA generativa representa una nueva forma de relacionarse con el software?
+			\item ¿Podría cambiar la manera en que enseñamos programación?
+		\end{itemize}
+	\end{quote}
+	
+	\section*{Resultado y Reflexión(Parte 3: Análisis)}
+	
+	\subsection*{Definición de paradigma de programación}
+	Un paradigma de programación es un modelo o enfoque que define cómo se estructura y ejecuta el código. Los paradigmas tradicionales incluyen:
+	
+	\begin{itemize}
+		\item \textbf{Programación imperativa (procedural)}: Instrucciones secuenciales (ej: C).
+		\item \textbf{Orientación a objetos (OOP)}: Modelado con clases y objetos (ej: Java).
+		\item \textbf{Programación funcional (FP)}: Funciones puras y sin estado mutable (ej: Haskell).
+		\item \textbf{Programación lógica (LP)}: Reglas y consultas basadas en lógica (ej: Prolog).
+	\end{itemize}
+	
+	Cada paradigma impone una forma distinta de pensar y resolver problemas.
+	
+	\subsection*{¿La IA generativa (ChatGPT, Codex) es un nuevo paradigma?}
+	La IA generativa no encaja directamente en los paradigmas tradicionales, pero podría considerarse un meta-paradigma o paradigma asistido por IA, ya que:
+	
+	\begin{itemize}
+		\item No reemplaza los paradigmas existentes, sino que actúa como una capa de abstracción superior.
+		\item Cambia la relación humano-código; en lugar de escribir manualmente, se describe el problema en lenguaje natural y la IA sugiere soluciones.
+	\end{itemize}
+	
+	Ejemplo:
+	
+	\begin{itemize}
+		\item \textbf{Tradicional (OOP)}: Diseñar una clase Persona con atributos y métodos manualmente.
+		\item \textbf{Con IA}: Prompt: \textit{"Genera una clase Persona en Python con nombre, edad y método para saludar."}
+	\end{itemize}
+	
+	\subsection*{¿Nueva forma de relacionarse con el software?}
+	
+	\begin{itemize}
+		\item \textbf{Ventajas}:
+		\begin{itemize}
+			\item \textbf{Reduce barrera de entrada}: Personas sin experiencia pueden prototipar código.
+			\item \textbf{ Acelera el desarrollo}: Tareas repetitivas (ej: CRUDs, boilerplate) se generan automáticamente.
+			\item \textbf{Cambia el rol del programador}: Menos tiempo en sintaxis, más en diseño y validación.
+		\end{itemize}
+		\item \textbf{Limitaciones}:
+		\begin{itemize}
+			\item La IA puede generar código incorrecto o inseguro.
+			\item Sin entender el código generado, se dificulta la depuración.
+			\item No reemplaza el razonamiento algorítmico.
+		\end{itemize}
+	\end{itemize}
+	
+	\subsection*{¿Impacto en la enseñanza de programación?}
+	\begin{itemize}
+		\item \textbf{Oportunidades}:
+		\begin{itemize}
+			\item Menos memorización, más pensamiento lógico.
+			\item Aprender a formular prompts efectivos y validar código generado.
+		\end{itemize}
+		\item \textbf{Desafíos}:
+		\begin{itemize}
+			\item Riesgo de que estudiantes no dominen fundamentos.
+			\item Necesidad de enseñar \textit{debugging} de código generado.
+		\end{itemize}
+	\end{itemize}
+	
+\end{document}

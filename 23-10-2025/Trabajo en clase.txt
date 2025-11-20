@@ -1,0 +1,75 @@
+?- member(1, [2,3,1,10]).
+true ; // dejo pendientes mas 1
+false.
+
+?- member(1, [2,3,1,10]), !. // corta backtracking
+true.
+
+?- member(1, [2,3,1,10,1 ,1, 4]), !. // corta backtracking
+true. 
+
+?- member(666, [2,3,1,10,1 ,1, 4]), !. // no ejecuta el cut, nunca llego a el
+false.
+
+?- member(666, [2,3,1,10,1 ,1, 4]), writeln(ok). // no imprime, 666 no esta en la lista
+false.
+
+?- member(1, [2,3,1,10,1 ,1, 4]), writeln(ok). // imprime 3 ok
+ok
+true ;
+ok
+true ;
+ok
+true ;
+false.
+
+?- member(1, [2,3,1,10,1 ,1, 4]), !, writeln(ok). // imprime 1 ok
+ok
+true.
+
+// comportamiento de un generador
+?- member(X, [2,3,1,10,1,4]).
+X = 2 ;
+X = 3 ;
+X = 1 ;
+X = 10 ;
+X = 1 ;
+X = 4.
+
+?- member(X, [2,3,1,10,1,4]), member(Y, [a,b]), writeln([X, Y]).
+[2,a]
+X = 2,
+Y = a ;
+[2,b]
+X = 2,
+Y = b ;
+[3,a]
+X = 3,
+Y = a ;
+[3,b]
+X = 3,
+Y = b ;
+[1,a]
+X = 1,
+Y = a ;
+[1,b]
+X = 1,
+Y = b ;
+[10,a]
+X = 10,
+Y = a ;
+[10,b]
+X = 10,
+Y = b ;
+[1,a]
+X = 1,
+Y = a ;
+[1,b]
+X = 1,
+Y = b ;
+[4,a]
+X = 4,
+Y = a ;
+[4,b]
+X = 4,
+Y = b.

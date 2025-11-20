@@ -1,0 +1,90 @@
+Si queremos los numeros impares de una lista STREAM (no sale nada, hasta que se soliciten)
+
+jshell> IntStream.
+Builder               IntMapMultiConsumer   builder()             class                 concat(               empty()               generate(             iterate(              of(                   range(                
+rangeClosed(          
+jshell> IntStream.range(1, 10)
+$1 ==> java.util.stream.IntPipeline$Head@1e88b3c
+
+jshell> IntStream.range(1, 10).filter(x -> x % 2 == 1)
+$2 ==> java.util.stream.IntPipeline$10@604ed9f0
+
+jshell> 
+
+Si queremos suma de impares
+
+jshell> IntStream.range(1, 10).filter(x -> x % 2 == 1).sum()
+$3 ==> 25
+
+Si queremos imprimirlos
+
+jshell> IntStream.range(1, 10).filter(x -> x % 2 == 1).forEach(x -> System.out.println(x))
+1
+3
+5
+7
+9
+
+Podemos guardar el stream en una var, ya que es un objeto
+
+jshell> var a = IntStream.range(1, 10).filter(x -> x % 2 == 1)
+a ==> java.util.stream.IntPipeline$10@146ba0ac
+
+jshell> a
+a ==> java.util.stream.IntPipeline$10@146ba0ac
+
+jshell> 
+
+STREAM se gasta al volverlo a usar:
+
+jshell> a.filter(x -> x % 2 == 1)
+$7 ==> java.util.stream.IntPipeline$10@f6c48ac
+
+jshell> 
+
+jshell> a.filter(x -> x % 2 == 1)
+|  Exception java.lang.IllegalStateException: stream has already been operated upon or closed
+|        at AbstractPipeline.<init> (AbstractPipeline.java:203)
+|        at IntPipeline.<init> (IntPipeline.java:91)
+|        at IntPipeline$StatelessOp.<init> (IntPipeline.java:652)
+|        at IntPipeline$10.<init> (IntPipeline.java:381)
+|        at IntPipeline.filter (IntPipeline.java:380)
+|        at (#8:1)
+
+Podemos construir streams a partir de una lista, para lograr utilizar map, filter, reduce...
+
+jshell> var a = List.
+class     copyOf(   of(       
+jshell> var a = List.of("Hola", "que", "tal")
+a ==> [Hola, que, tal]
+
+jshell> a.
+add(               addAll(            addFirst(          addLast(           clear()            contains(          
+containsAll(       equals(            forEach(           get(               getClass()         getFirst()         
+getLast()          hashCode()         indexOf(           isEmpty()          iterator()         lastIndexOf(       
+listIterator(      notify()           notifyAll()        parallelStream()   remove(            removeAll(         
+removeFirst()      removeIf(          removeLast()       replaceAll(        retainAll(         reversed()         
+set(               size()             sort(              spliterator()      stream()           subList(           
+toArray(           toString()         wait(              
+jshell> a.stream()
+$10 ==> java.util.stream.ReferencePipeline$Head@3fd7a715
+
+Solucion Interfaces Funcionales. Tiene huecos, lo rellenamos con la lambda con la logica que necesitamos
+
+jshell> interface Selector<T>{ T select(Boolean b, T x, T y); }
+|  created interface Selector
+
+jshell> Selector<Integer> foo = (b, x, y) -> b ? x : y
+foo ==> $Lambda/0x000075ca0000d6e0@23faf8f2
+
+jshell> foo.select(true,666,999)
+$14 ==> 666
+
+jshell> interface Chorizo<T>{ T grasa(Boolean b, T x, T y); }
+|  created interface Chorizo
+
+jshell> Chorizo<Integer> foo = (b, x, y) -> b ? x : y
+foo ==> $Lambda/0x000075ca0000f410@6895a785
+
+jshell> foo.grasa(true,666,999)
+$17 ==> 666

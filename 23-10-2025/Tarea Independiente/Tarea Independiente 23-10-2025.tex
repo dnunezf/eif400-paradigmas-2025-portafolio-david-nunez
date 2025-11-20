@@ -1,0 +1,306 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 23/10/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Computación como búsqueda de pruebas usando DFS 
+		\item Resolución
+		\item Árbol de prueba 
+		\item Problemas con búsqueda DFS
+		\item Cortando la búsqueda con Cut (!)
+		\item Backtracking como ciclos
+	\end{itemize}
+	
+	\section*{Ejercicio 0}
+	
+	\begin{verbatim}
+		¿Que hace el siguiente predicado foo(+N, -R) para N un entero no negativo:
+		
+		foo(N, M) :- foo(N, 1, M).
+		foo(0, M, M) :- !.
+		foo(N, M, R) :- N1 is N - 1, M1 is M * N, foo(N1, M1, R).
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% foo(+N, -R): calcula el factorial de N, para N >= 0.
+		% Usa un acumulador para calculo eficiente.
+		
+		% Caso inicial: se llama con N y se crea un acumulador que empieza en 1.
+		foo(N, R) :-
+		foo(N, 1, R).
+		
+		% Caso base: cuando N llega a 0, el resultado es el acumulador actual (M).
+		% El corte (!) indica que no hay mas caminos que probar.
+		foo(0, M, M) :- 
+		!.
+		
+		% Caso recursivo: mientras N sea mayor que 0.
+		% Se disminuye N en 1 y se multiplica el acumulador por el valor actual de N.
+		% Luego se vuelve a llamar recursivamente con esos nuevos valores.
+		foo(N, M, R) :-
+		N1 is N - 1,        % resta 1 a N
+		M1 is M * N,        % multiplica el acumulador por N
+		foo(N1, M1, R).     % llamada recursiva
+		
+		/*
+		Ejemplos de uso:
+		
+		Paso a paso con N=5:
+		
+		1. foo(5,R) -> foo(5,1,R)
+		
+		2. foo(5,1,R) -> N1=4, M1=5 -> foo(4,5,R)
+		
+		3. foo(4,5,R) -> N1=3, M1=20 -> foo(3,20,R)
+		
+		4. foo(3,20,R) -> N1=2, M1=60 -> foo(2,60,R)
+		
+		5. foo(2,60,R) -> N1=1, M1=120 -> foo(1,120,R)
+		
+		6. foo(1,120,R) -> N1=0, M1=120 -> foo(0,120,R)
+		
+		foo(0,120,R) hace match con la base y, por el !, unifica R=120 y termina.
+		*/
+	\end{lstlisting}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		 Escriba begins(L, S, N) para que funcione este ejemplo
+		%
+		% begins(L, S, N): L es una lista que a la izquierda tiene la sublista S y esta es de largo al menos N.
+		% begins(L, S, N) :- /* su respuesta
+		
+		*/.
+		
+		test_begings :-
+		Min = 3,
+		L = [a,b,c,d,e,f],
+		forall(begins(L, S, Min),
+		(length(S, N),
+		format('Sublist=~w. Length= ~d >= Min= ~d~n', [S, N, Min])
+		)
+		)
+		.
+		:- test_begings.
+		% Salida
+		Sublist=[a,b,c]. Length= 3 >= Min= 3
+		Sublist=[a,b,c,d]. Length= 4 >= Min= 3
+		Sublist=[a,b,c,d,e]. Length= 5 >= Min= 3
+		Sublist=[a,b,c,d,e,f]. Length= 6 >= Min= 3
+		true.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% begins(+L, -S, +N)
+		% Genera todas las sublistas S que son prefijos de L, y cuya longitud es al menos N.
+		
+		begins(L, S, N) :-
+		append(S, _, L), % S debe ser prefijo de L
+		length(S, Len), % mide la longitud de S
+		Len >= N. % aseguramos longitud minima
+		
+		% Prueba del predicado 
+		
+		test_begings :-
+		Min = 3,
+		L = [a,b,c,d,e,f],
+		forall(begins(L, S, Min),
+		( length(S, N),
+		format('Sublist=~w. Length= ~d >= Min= ~d~n', [S, N, Min])
+		)
+		).
+		
+		:- test_begings.
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [begins].
+		Sublist=[a,b,c]. Length= 3 >= Min= 3
+		Sublist=[a,b,c,d]. Length= 4 >= Min= 3
+		Sublist=[a,b,c,d,e]. Length= 5 >= Min= 3
+		Sublist=[a,b,c,d,e,f]. Length= 6 >= Min= 3
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{verbatim}
+		Escriba range(A, B, N) que genere N con A <= N < B de foma que lo siguiente funciona. No use numlist ni between. haga su propia versión.
+		range(A, B, L) :- /* su respuesta */
+		
+		test_range :-
+		A=5, B= 10,
+		forall((range(A, B, R), member(N, R)),
+		format('~d <= ~d <= ~d~n', [A, N, B])
+		)
+		.
+		
+		:- test_range.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% range(+A, +B, -L)
+		% Genera una lista L con todos los enteros desde A hasta B-1
+		% Ejemplo: ?- range(5,10,L). -> L = [5,6,7,8,9].
+		
+		range(A, B, L) :-
+		A < B, % verifica que A menor que B
+		range_aux(A, B, L). % llama al predicado auxiliar recursivo
+		
+		% Caso base: Cuando A alcanza o supera B, ya no hay mas numeros que agregar.
+		% La lista resultante es vacia.
+		range_aux(A, B, []) :-
+		A >= B,
+		!.
+		
+		% Caso recursivo: Si A menor que B, se agrega A al inicio de la lista, y se llama
+		% nuevamente con A+1.
+		range_aux(A, B, [A|R]) :-
+		A < B,
+		A1 is A + 1, % calcula siguiente numero
+		range_aux(A1, B, R). % continua construyendo la lista
+		
+		test_range :-
+		A = 5,
+		B = 10,
+		forall( (range(A, B, R), member(N, R)),  
+		format('~d <= ~d <= ~d~n', [A, N, B])  
+		).
+		
+		:- test_range.
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [range].
+		5 <= 5 <= 10
+		5 <= 6 <= 10
+		5 <= 7 <= 10
+		5 <= 8 <= 10
+		5 <= 9 <= 10
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{verbatim}
+		Escriba solve(-X, -Y, +Z) talque encuentra enteros no negativos X y Y tales X + Y = Z
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% solve(-X, -Y, +Z) genera todos los pares de enteros no negativos (X, Y)
+		% tales que X + Y = Z.
+		
+		solve(X, Y, Z) :-
+		integer(Z), % asegura que Z sea entero 
+		Z >= 0, % asegura que Z sea positivo
+		solve_aux(0, X, Y, Z). % comienza la busqueda con X=0
+		
+		% Caso base: Incrementa X desde 0 hasta Z, calculando Y = Z - X.
+		solve_aux(Current, X, Y, Z) :-
+		Current =< Z, % mientras no se sobrepase Z
+		X = Current, % asigna el valor actual a X
+		Y is Z - Current. % calcula Y
+		
+		solve_aux(Current, X, Y, Z) :-
+		Current < Z, % si aun no alcanza Z
+		Next is Current + 1, % incrementa X
+		solve_aux(Next, X, Y, Z). % continua generando soluciones
+		
+		test_solve :-
+		Z = 5,
+		forall(solve(X, Y, Z),
+		format('X=~d, Y=~d, X+Y=~d~n', [X, Y, Z])
+		).
+		
+		:- test_solve.
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [solve].
+		X=0, Y=5, X+Y=5
+		X=1, Y=4, X+Y=5
+		X=2, Y=3, X+Y=5
+		X=3, Y=2, X+Y=5
+		X=4, Y=1, X+Y=5
+		X=5, Y=0, X+Y=5
+		true.
+	\end{lstlisting}
+	
+\end{document}

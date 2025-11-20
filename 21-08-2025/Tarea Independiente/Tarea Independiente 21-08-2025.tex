@@ -1,0 +1,276 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 21/08/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Evaluar: recorrer AST	siguiendo estrategias
+		\item Estrategias: en que orden se recorre el AST. Qué tan profundo bajar
+		\begin{itemize}
+			\item Eager (aplicativa estricta): Full post-order
+			\item Lazy (por demanda, orden normal): Post-order solo hasta donde sea necesaria (ventajas/desventajas)
+		\end{itemize}
+		\item Reducciones $\beta$ y $\alpha$: conceptual versus implementación (ingeniería) usando clausuras
+		\item State: memoria a la que el código tiene acceso (Alias Scope, Context)
+		\item Clausura: objeto que encapsula lambda + memoria local con acceso a la clausura padre y sirve como memoria de una lambda. NOTA: LO DESARROLLAREMOS LUEGO
+		\item RESUMEN DE CLAUSURAS EN CUADERNO
+		\item Lenguaje: faceta declarativa vs operativa
+		\item FP: Programar en niveles altos de pirámide
+		\item Historia:
+		\begin{itemize}
+			\item Ensamblador: imperativa no estructurada < 70
+			\item C/PASCAL: imperativa estructurada 70-80
+			\item C++: imperativa + OOP 90-actual
+			\item Programación multi-core (MCP) y multi-threaded (MTP) 
+		\end{itemize}
+		\item FP: Principio de inmutabilidad (Referencia Transparencial). No hay efectos secundarios
+		\item FP Y PMT, PMC
+	\end{itemize}
+	
+	\section*{Ejercicio 1}
+	
+	Vea este código, ejecute y explique las salidas. Este ejercicio tiene que ver con estrategias de evaluación.
+	Nota: El caso Times/fibo dura un rato pues calcula fibonacci recursivamente que es MUY ineficiente.
+	
+	\begin{lstlisting}[language=JavaScript]
+		console.log("*** And ***")
+		const foo = (msg, value) => (console.log(msg), value)
+		
+		const fibo_start = n =>  foo(`fibo(${n})`, fibo(n))
+		const fibo = n => n <= 1 ? 1 : fibo(n - 1) + fibo(n - 2)
+		
+		console.log("Caso 1:", foo("A", true) && foo("B", false) )
+		console.log("Caso 2:", foo("A", false) && foo("B", false) )
+		
+		console.log("\n*** Or ***")
+		console.log("Caso 1:", foo("A", true) || foo("B", false) )
+		console.log("Caso 2:", foo("A", false) || foo("B", false) )
+		
+		console.log("\n*** Times/fibo ***")
+		console.log("Caso 1:", foo("A", fibo(10)) * foo("B", 0) )
+		console.log("Caso 2:", foo("A", 0),  foo("B", fibo(10)) )
+		
+		console.log("\n*** Ternary (Warning!! it can take a big whiiile. Explain why) ***")
+		console.log("Caso 1:", foo("A", fibo_start(50) < 0) ? foo("B", fibo_start(100)) : foo("C", 0) )
+	\end{lstlisting}
+	
+	¿Qué conclusiones se obtienen sobre tipos de estrategias de evaluación?
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language={JavaScript}, caption={Explicacion de salidas en JS}]
+		console.log("*** And ***");
+		
+		const foo = (msg, value) => (console.log(msg), value);
+		
+		const fibo_start = (n) => foo(`fibo(${n})`, fibo(n));
+		const fibo = (n) => (n <= 1 ? 1 : fibo(n - 1) + fibo(n - 2));
+		
+		// AND (&&) usa corto-circuito (estrategia lazy): si el primero es falso ya no evalua el segundo.
+		console.log(
+		"Caso 1:",
+		foo("A", true) && // imprime "A", retorna true
+		foo("B", false) // evalua porque el primero fue true, imprime "B", retorna false
+		); // Resultado final: false
+		
+		console.log(
+		"Caso 2:",
+		foo("A", false) && // imprime "A", retorna false
+		foo("B", false) // NO se evalua por corto-circuito (estrategia lazy)
+		); // Resultado final: false
+		
+		console.log("\n*** Or ***");
+		
+		// OR (||) tambien con corto-circuito (lazy): si el primero es true ya no evalua el segundo.
+		console.log(
+		"Caso 1:",
+		foo("A", true) || // imprime "A", retorna true
+		foo("B", false) // NO se evalua
+		); // Resultado final: true
+		
+		console.log(
+		"Caso 2:",
+		foo("A", false) || // imprime "A", retorna false
+		foo("B", false) // se evalua, imprime "B", retorna false
+		); // Resultado final: false
+		
+		console.log("\n*** Times/fibo ***");
+		
+		// * fuerza evaluar ambos operandos siempre (estrategia aplicativa).
+		console.log(
+		"Caso 1:",
+		foo("A", fibo(10)) * // calcula fibo(10), imprime "A", ~55
+		foo("B", 0) // imprime "B", 0
+		); // Resultado final: 55 * 0 = 0
+		
+		// , (coma) evalua ambos, devuelve el ultimo (estrategia aplicativa).
+		console.log(
+		"Caso 2:",
+		foo("A", 0), // imprime "A", valor descartado
+		foo("B", fibo(10)) // imprime "B", calcula fibo(10)=55
+		); // Resultado final: 55
+		
+		console.log(
+		"\n*** Ternary (Warning!! it can take a big whiiile. Explain why) ***"
+		);
+		
+		// ? : primero evalua condicion. Aqui fibo_start(50) es muy costoso (recursion exponencial).
+		console.log(
+		"Caso 1:",
+		foo("A", fibo_start(50) < 0) // imprime "A", calcula fibo(50) (muy lento), resultado false
+		? foo("B", fibo_start(100)) // rama NO tomada (no se evalua)
+		: foo("C", 0) // imprime "C", retorna 0
+		); // Resultado final: 0
+		
+		// ====================
+		// Conclusion:
+		// JS usa evaluacion aplicativa (eager) de argumentos, pero algunos operadores (and, or, ?:)
+		// introducen evaluacion lazy (por demanda) mediante corto-circuito.
+		// Operadores aritmeticos y coma fuerzan evaluacion completa de sus operandos.
+	\end{lstlisting}
+	
+	\subsection*{SE CONCLUYE:}
+	
+	Como se explicó anteriormente, JS usa evaluación aplicativa (eager) de argumentos, pero algunos operadores (and, or, ?:) introducen evaluación lazy (por demanda) mediante corto-circuito.
+	Operadores aritméticos y coma fuerzan evaluación completa de sus operandos.
+	
+	\section*{Ejercicio 2}
+	
+	\begin{quote}
+		Dos expresiones E1 y E2 se dicen Leibniz-equivalentes si para todo programa P que use E1 si cambiamos E1 por E2 en P y ejecutamos P los resultados de P antes y después del cambio en idénticas situaciones son los mismos. Es decir, P es invariante a cambios de E1 por E2 para cualquier P.
+		
+		El estudiante Carlisto  :-))  afirma que dada la definición de myAdd, la expresión  myAnd(x, y) es Leibniz-equivalente a la expresión x \&\& y  en JS para cualquier x y y ¿Es esa afirmación correcta?
+		Justifique su respuesta formalmente.
+		
+		const myAnd = (x, y) => x \&\& y
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\subsubsection*{Planteamiento:}
+	Se afirma que, dada la definición:
+	
+	\begin{verbatim}
+		const myAnd = (x, y) => x && y
+	\end{verbatim}
+	
+	la expresión \texttt{myAnd(x, y)} es Leibniz-equivalente a la expresión \texttt{x \&\& y} en JavaScript, para cualquier \texttt{x} y \texttt{y}.  
+	
+	\subsubsection*{Definición de Leibniz-equivalencia:}
+	Dos expresiones $E_1$ y $E_2$ son Leibniz'equivalentes si, para todo programa  $P$ que use $E_1$, al sustituir $E_1$ por $E_2$ en $P$ y ejecutar en las mismas condiciones, los resultados son idénticos.
+	
+	\subsubsection*{Análisis}
+	
+	\begin{itemize}
+		\item En JavaScript, las llamadas a funciones evalúan estrategia \emph{eager} (estrictamente): antes de entrar al cuerpo de la función, se evalúan todos los argumentos.
+		\item El operador lógico \texttt{\&\&} se evalúa con estrategia \emph{lazy}: el segundo operando solo se evalúa si el primero es truthy.
+		\item Esto implica que existen programas donde \texttt{x \&\& y} y \texttt{myAnd(x, y)} producen efectos distintos.
+	\end{itemize}
+	
+	\subsubsection*{Contraejemplo}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Efecto observable en JS}]
+		// 1. Efecto observable:
+		
+		const myAnd = (x, y) => x && y;
+		
+		let s = 0;
+		const inc = () => (s++, true);
+		
+		false && inc(); // Resultado: false, s == 0 (no se evalua inc, ya que evalua y solo si x es true)
+		myAnd(false, inc()); // Resultado: false, s == 1 (se evalua inc porque una funcion siempre evalua todos los argumentos)
+	\end{lstlisting}
+	
+	\subsubsection*{Conclusión}
+	 
+	La afirmación del estudiante es \textbf{incorrecta}. 
+	\texttt{myAnd(x, y)} no es Leibniz-equivalente a \texttt{x \&\& y}, porque existen programas $P$ donde la sustitución altera el comportamiento observable.  
+	
+	\section*{Ejercicio 3}
+	
+	\begin{quote}
+		Justifique o refute: en JS usar const en toda declaración siempre garantiza transparencia referencial.
+	\end{quote}
+	
+	\section*{Ejercicio 4}
+	
+	\begin{quote}
+		Dibuje ASTs y el grafo de memoria (state) del siguiente código y explique la salida.
+		Recuerde que cada lambda se convierte en una nueva clausura como se explicó (ver arriba).
+		
+		\begin{lstlisting}[language=JavaScript]
+			const y = 5
+			const x = y => x => x + y
+			console.log((y => x(y+1)(4))(y))
+		\end{lstlisting}
+
+	\end{quote}
+
+\end{document}

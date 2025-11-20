@@ -1,0 +1,160 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 22/09/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item FP en java como un "parche"
+		\item Modelaje de tipos de lambdas como objetos: Function, BiFunction, Predicate, Supplier, Consumer.
+		\item Noción de Stream<T> como "generador/iterador" de objetos de tipo T. Es lazy consumible una sola vez. Hay subclases para tipos concretos tal como lo IntStream.
+		\item Principales "combinadores" con ejemplos 
+		\begin{itemize}
+			\item map, filter, reduce 
+			\item Interfaz funcional (y métodos default). También se le dice SAM (acrónimo de single abstract method interface)
+		\end{itemize}
+	\end{itemize}
+	
+	\section*{Ejercicio 0}
+	
+	\begin{verbatim}
+		Logre tipos adecuados de forma que foo reciba un tipo correcto. Ud. debe sustituir ?_0, ?_1 y ?_2 por tipos que permitan la tipificación de foo.
+		?_0 foo = (?_1 a, ?_2 f) -> a.map(x -> x**2 - 2*x + 1 == 0).filter(r -> f.checkItOut(r))
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=Java,caption={Soluc. en JAVA}]
+		import java.util.function.BiFunction;
+		import java.util.stream.Stream;
+		
+		public class Ejercicio0 {
+			@FunctionalInterface
+			interface Checker {
+				boolean checkItOut(Boolean b);
+			}
+			
+			public static void main(String[] args) {
+				// definimos foo
+				BiFunction<Stream<Integer>, Checker, Stream<Boolean>> foo =
+				(Stream<Integer> a, Checker f) ->
+				a.map(x -> x * x - 2 * x + 1 == 0)
+				.filter(r -> f.checkItOut(r));
+				
+				// ejemplo: lista de enteros
+				Stream<Integer> numbers = Stream.of(1, 2, 3, 4, 5);
+				
+				// CHECKER que solo deja pasar true
+				Checker cheker = r -> r;
+				
+				// aplicamos foo
+				Stream<Boolean> result = foo.apply(numbers, cheker);
+				
+				// consumimos el stream
+				result.forEach(System.out::println);
+			}
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{quote}
+		Implemente un factorial funcional en Java-FP.
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=Java,caption={Soluc. en Java}]
+		// Implementa el factorial de un numero entero positivo (utilizando Streams + reduce).
+		import java.util.stream.IntStream;
+		
+		public class Ejercicio1 {
+			
+			public static long factorial(int n) {
+				if (n < 0) {
+					throw new IllegalArgumentException("n must be >= 0");
+				}
+				
+				// Genera el rango [1, n] inclusive como stream de enteros, y reduce multiplicando cada elemento. Valor inicial
+				// de 1
+				return IntStream.rangeClosed(1, n)
+				.reduce(1, (a, b) -> a * b);
+			}
+			
+			public static void main(String[] args) {
+				System.out.println("0! = " + factorial(0));
+				System.out.println("1! = " + factorial(1));
+				
+				System.out.println("5! = " + factorial(5));
+				System.out.println("10! = " + factorial(10)); 
+			}
+		}
+	\end{lstlisting}
+	
+\end{document}

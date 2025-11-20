@@ -1,0 +1,196 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 20/10/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Control de ejecución: por recursión, backtracking o metapredicados
+		\item Ejecución de un .pl (de arriba hacia abajo, de izquierda a derecha)
+		\item Datos: por medio de estructuras simbólicas (ASTs)
+		\item Términos como ASTs, operadores como símbolos
+		\item Simbólico por default, evaluación explícita: predicado is
+		\item Algoritmo de Unificación: solución de ecuaciones de ASTs
+		\item Listas y ASTs
+		\item Reglas y patrones recursivos y de backtracking comunes
+	\end{itemize}
+	
+	\section*{Ejercicio 0}
+	
+	\begin{verbatim}
+		En cada caso, resuelva la ecuación unificando, y encuentre el unificador o indique por qué no existe:
+		
+		a) f([X, h(W) | [h(Y)]]) = f([b, h(h(a)), h(W)])
+		
+		R/ Unifica. Igualando listas:
+		
+		X = b
+		h(W) = h(h(a)) -> W = h(a)
+		h(Y) = h(W) -> Y = W -> Y = h(a) *NOTA: DONDE W = h(a), se sustituye*
+		
+		Unificador general: {X/b, W/h(a), Y/h(a)}
+		
+		b) [X | [ f(a), f(f(X))] ] = [f(X), X, f(f(f(X)))].
+		
+		R/ No unifica:
+		
+		X = f(X) -> no existe unificador finito, ya que X aparece dentro del término que debería sustituirlo
+	\end{verbatim}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		Explique en palabras precisas qué funciones prestan las siguientes clausuras:
+		
+		erste([F | _], F).
+		R/ erste(L, F): F el primero de una lista L no vacia o genera listas L que empiecen con F
+		
+		a) zumindestzwo([_, _ | _ ]).
+		R/ Verdadero si la lista tiene al menos dos elementos. No importa cuáles sean ni cuántos más haya.
+		
+		b) voranstellen(X, R, [X | R]).
+		R/ Inserta X al inicio de la lista L, produciendo [X | R]; o al revés, separa el primer elemento de una lista en X, y el resto en R
+		
+		c)
+		anhaengen([], A, A).
+		anhaengen([ F | R], B, [ F | S] ) :- anhaengen( R, B, S).
+		
+		R/ Concatena listas: anhaengen([1,2],[3,4], R) -> R = [1,2,3,4].
+	\end{verbatim}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{verbatim}
+		Escriba indexof(E, L, I) que retorne en I la posición de E en la lista L (numerando posiciones desde 0). Haga su propia versión recursiva.
+		Ejemplo
+		?- indexof(666, [a, b, 666, c, [666], 666], I).
+		I=2;
+		I=5;
+		false
+		?-
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% indexof(Element, List, Index)
+		indexof(E, [E | _], 0). % el elemento E esta al inicio, index = 0
+		indexof(E, [_ | R], I) :- % descarta el primer elemento, y busca en el resto
+		indexof(E, R, I1),
+		I is I1 + 1.
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- indexof(666, [a,b,666,c,[666],666], I).
+		I = 2 ;
+		I = 5 ;
+		false.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{verbatim}
+		Escriba cartesian(A, B, AxB) que recursivamente calcule en AxB una lista de listas de la forma [a, b] donde a está en A y b está en B.
+		Ejemplo
+		?- cartesian([1,2], [a,b,c], R).
+		R = [[1,a], [1,b], [1,c], [2,a], [2,b], [2,c]]
+		?-
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% cartesian(A, B, AxB)
+		% calcula el producto cartesiano de dos listas A y B
+		% devuelve en AxB una lista de pares [a,b]
+		
+		% Caso base: si la primera lista esta vacia, el resultado lo esta
+		cartesian([], _, []).
+		% Caso recursivo: genera todos los pares con el primer elemento A,
+		% luego combina con los pares generados del resto As
+		cartesian([A | As], B, R) :-
+		pair_with(A, B, Pairs), 
+		cartesian(As, B, Rest),
+		append(Pairs, Rest, R). % une ambas listas
+		
+		% pair_with(A, B, Pairs) genera una lista de pares [A, b]
+		
+		% Caso base, sin elementos en B no hay pares
+		pair_with(_, [], []).
+		% Caso recursivo: crea el par [A, B] y continua con el resto
+		pair_with(A, [B | Bs], [[A, B] | R]) :-
+		pair_with(A, Bs, R).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- cartesian([1,2], [a,b,c], R).
+		R = [[1,a], [1,b], [1,c], [2,a], [2,b], [2,c]].
+	\end{lstlisting}
+	
+\end{document}

@@ -1,0 +1,17 @@
+En cada caso, resuelva la ecuación unificando, y encuentre el unificador o indique por qué no existe:
+
+a) f([X, h(W) | [h(Y)]]) = f([b, h(h(a)), h(W)])
+
+R/ Unifica. Igualando listas:
+
+X = b
+h(W) = h(h(a)) -> W = h(a)
+h(Y) = h(W) -> Y = W -> Y = h(a) *NOTA: DONDE W = h(a), se sustituye*
+
+Unificador general: {X/b, W/h(a), Y/h(a)}
+
+b) [X | [ f(a), f(f(X))] ] = [f(X), X, f(f(f(X)))].
+
+R/ No unifica:
+
+X = f(X) -> no existe unificador finito, ya que X aparece dentro del término que debería sustituirlo

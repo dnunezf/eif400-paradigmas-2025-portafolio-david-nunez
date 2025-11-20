@@ -1,0 +1,16 @@
+Explique en palabras precisas qué funciones prestan las siguientes clausuras:
+
+erste([F | _], F).
+R/ erste(L, F): F el primero de una lista L no vacia o genera listas L que empiecen con F
+
+a) zumindestzwo([_, _ | _ ]).
+R/ Verdadero si la lista tiene al menos dos elementos. No importa cuáles sean ni cuántos más haya.
+
+b) voranstellen(X, R, [X | R]).
+R/ Inserta X al inicio de la lista L, produciendo [X | R]; o al revés, separa el primer elemento de una lista en X, y el resto en R
+
+c)
+anhaengen([], A, A).
+anhaengen([ F | R], B, [ F | S] ) :- anhaengen( R, B, S).
+
+R/ Concatena listas: anhaengen([1,2],[3,4], R) -> R = [1,2,3,4].
