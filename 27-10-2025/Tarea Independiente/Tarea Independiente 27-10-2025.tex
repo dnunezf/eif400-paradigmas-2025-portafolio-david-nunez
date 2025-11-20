@@ -1,0 +1,243 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 27/10/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Patrones para repeticiones o "loops" de iteradores (generador/consumidor) y backtracking
+		\item Metapredicados
+		\item forall
+		\item findall
+		\item \_+ (not)
+		\item call, apply
+		\item Haciendo un metapredicado como \_+ usando call
+		\item maplist, includes/excludes, foldl
+	\end{itemize}
+	
+	\section*{Ejercicio 0}
+	
+	\begin{verbatim}
+		Operador ternario: Escriba if_then_else(?C, ?T, ?E): si C es true llama a T en otro caso llama a E. No hace backtracking en C.
+	\end{verbatim}
+	
+	\subsection{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% if_then_else(+Cond, +Then, +Else)
+		% Ejecuta Then si Cond tiene exito una vez, de lo contrario ejecuta Else.
+		if_then_else(C, T, _E) :-
+			call(C),
+			!,
+			call(T).
+		if_then_else(_, _, E) :-
+			call(E).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [if_then_else].
+		true.
+		
+		?- if_then_else(true, writeln('yes'), writeln('no')).
+		yes
+		true.
+		
+		?- if_then_else(fail, writeln('yes'), writeln('no')).
+		no
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		1) Escriba una versión propia recursiva  de maplist: map(?G, +L, -M)  que hace lo mismo que maplist de Prolog.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% map(+Goal, +ListIn, -ListOut)
+		% Aplica Goal a cada elemento de ListIn, produciendo ListOut.
+		map(_, [], []). % caso base, lista vacia produce lista vacia
+		map(G, [X|Xs], [Y|Ys]) :- % aplica Goal a la cabeza y recursivamente al resto
+		call(G, X, Y),
+		map(G, Xs, Ys).
+		
+		
+		% predicado para las pruebas: duplica un numero
+		double(X, Y) :-
+		Y is X * 2.
+		
+		% Ejemplo de uso:
+		:- writeln('prueba map casero'),
+		map(double, [1,2,3,4], R1),
+		writeln(R1).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [map].
+		prueba map casero
+		[2,4,6,8]
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{verbatim}
+		Lo mismo que 1) pero para include y exclude.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		/*
+		* include(+Goal, +ListIn, -ListOut)
+		* Conserva los elementos de ListIn para los cuales Goal(X) tiene exito.
+		*/
+		include(_, [], []). % caso base: lista vacia produce lista vacia
+		include(G, [X|Xs], [X|Ys]) :- % si el primer elemento X cumple la condicion
+		call(G, X), !, % se llama al predicado Goal con X, y si tiene exito,
+		include(G, Xs, Ys). % se sigue procesando el resto de la lista
+		include(G, [_|Xs], Ys) :- % si el primer elemento no cumple la condicion
+		include(G, Xs, Ys). % se omite y se sigue con el resto
+		
+		/*
+		* exclude(+Goal, +ListIn, -ListOut)
+		* Elimina los elementos de ListIn para los cuales Goal(X) tiene exito.
+		*/
+		exclude(_, [], []). % caso base: lista vacia produce lista vacia
+		exclude(G, [X|Xs], Ys) :- % si el primer elemento X cumple la condicion
+		call(G, X), !, % se llama al predicado Goal con X, y si tiene exito,
+		exclude(G, Xs, Ys). % el elemento se descarta y continua.
+		exclude(G, [X|Xs], [X|Ys]) :- % si el primer elemento no cumple la condicion
+		exclude(G, Xs, Ys). % se conserva y se sigue con el resto
+		
+		% ejemplo de uso
+		par(X) :-
+		0 is X mod 2.
+		
+		:- writeln('--- pruebas ---'),
+		include(par, [1,2,3,4,5,6], R1), writeln(R1),
+		exclude(par, [1,2,3,4,5,6], R2), writeln(R2).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [include_exclude].
+		--- pruebas ---
+		[2,4,6]
+		[1,3,5]
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{verbatim}
+		Usando foldl calcule el máximo de una lista: maximun(+L, -M): M es el máximo de la lista L
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		/*
+		maximum(+List, -Max)
+		Usa foldl para recorrer la lista y eoncontrar el maximo valor.
+		Si la lista esta vacia, falla.
+		*/
+		
+		% Se usa el primer elemento como inicial del acumulador
+		maximum([H|T], M) :-
+		foldl(max_acum, T, H, M).
+		
+		/*
+		max_acum(+Elem, +Acum, -NuevoAcum)
+		Compara el elemento actual con el acumulador y guarda el mayor.
+		*/
+		max_acum(X, A, A) :- % Si el elemento es menor o igual al acumulador, se mantiene el acumulador
+		X =< A,
+		!.
+		max_acum(X, _, X). % si el elemento es mayor, el nuevo acumulador es el elemento
+		
+		% ejemplo
+		:- writeln('--- prueba ---'),
+		maximum([3,7,2,9,5], M1), writeln(M1),
+		maximum([-10,-3,-50,-1], M2), writeln(M2),
+		writeln('--- fin ---').
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [max].
+		--- prueba ---
+		9
+		-1
+		--- fin ---
+		true.
+	\end{lstlisting}
+
+\end{document}
+

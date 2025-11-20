@@ -1,0 +1,48 @@
+Practica en clase
+
+Codigo javascript (Lenguaje Bajo Tipado):
+
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ node
+Welcome to Node.js v22.17.1.
+Type ".help" for more information.
+> var x = 666
+undefined
+> x = "hola"
+'hola'
+> .exit
+
+Codigo java (Lenguaje Alto Tipado):
+
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ jshell
+|  Welcome to JShell -- Version 24.0.2
+|  For an introduction type: /help intro
+
+jshell> var x = 666
+x ==> 666
+
+jshell> x = "Hola"
+|  Error:
+|  incompatible types: java.lang.String cannot be converted to int
+|  x = "Hola"
+|      ^----^
+
+En Java, division / 0
+
+jshell> x/0
+|  Exception java.lang.ArithmeticException: / by zero
+|        at (#2:1)
+
+En JS, division / 0
+
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ node
+Welcome to Node.js v22.17.1.
+Type ".help" for more information.
+> x = 1
+1
+> x / 0
+Infinity
+
+
+
+
+

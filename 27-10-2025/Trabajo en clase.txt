@@ -1,0 +1,91 @@
+// generador
+
+?- person(N, A, G).
+N = juan,
+A = 25,
+G = male ;
+N = jose,
+A = 35,
+G = male ;
+N = pedro,
+A = 15,
+G = male ;
+N = maria,
+A = 50,
+G = female ;
+N = karla,
+A = 10,
+G = female ;
+N = ana,
+A = 12,
+G = female.
+
+// aun sigue preguntando si quiero continuar
+?- person(N, A, G), format('>>> ~s ~d ~s~n', [N, A, G]).
+>>> juan 25 male
+N = juan,
+A = 25,
+G = male 
+
+// usamos fail 
+// person(N, A, G) = generador, format('>>> ~s ~d ~s~n', [N, A, G]), fail. = consumer, fail = backtracking
+?- person(N, A, G), format('>>> ~s ~d ~s~n', [N, A, G]), fail.
+>>> juan 25 male
+>>> jose 35 male
+>>> pedro 15 male
+>>> maria 50 female
+>>> karla 10 female
+>>> ana 12 female
+false.
+
+// usamos ; true. para evitar el false final
+?- (person(N, A, G), format('>>> ~s ~d ~s~n', [N, A, G]), fail);true.
+>>> juan 25 male
+>>> jose 35 male
+>>> pedro 15 male
+>>> maria 50 female
+>>> karla 10 female
+>>> ana 12 female
+true.
+
+// quiero la lista de nombres de las personas
+?- findall(N, person(N, _, _), Names).
+Names = [juan, jose, pedro, maria, karla, ana].
+
+// quiero la lista de nombres y genero de las personas
+?- findall([N, G], person(N, _, G), Names).
+Names = [[juan, male], [jose, male], [pedro, male], [maria, female], [karla, female], [ana, female]].
+
+// operador NOT
+
+?- 1 = 1.
+true.
+
+?- \+(1 = 2).
+true.
+
+?- \+(1 = 1).
+false.
+
+// if-else en prolog (como ternario)
+?- true -> writeln(si) ; writeln(no).
+si
+true.
+
+// equivalente a map en Prolog:
+
+maplist([X, Y] >> (Y is X+1), [10,20,30], L). % en JS seria: [10,20,30].map(x => x+1)
+L = [11, 21, 31].
+
+// equivalente a filter en Prolog:
+
+?- include([X] >> (X > 0), [1,-1,2,-2,3,-3,-4,5], L).
+L = [1, 2, 3, 5].
+
+?- exclude([X] >> (X > 0), [1,-1,2,-2,3,-3,-4,5], L).
+L = [-1, -2, -3, -4].
+
+// equivalente a reduce en Prolog (Acumulado, Elemento, Nuevo):
+
+?- foldl([Acc, E, N] >> (N is Acc + E), [10,20,30], 0, R).
+R = 60.

@@ -1,0 +1,198 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 29/09/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item JS: nulidades y accesos con punto seguro
+		\begin{itemize}
+			\item Operador de acceso a propiedades (elvis) ?.
+			\item ?? ( nullish coalescing )
+		\end{itemize}
+		
+		\item function versus arrow
+		\begin{itemize}
+			\item Clausura: objeto que tiene las ids locales de una función (incluyendo a this) y que apunta a la Clausura de su padre (función en donde se creó la función, que a su vez tiene su propia clausura y así hasta llegar a global si es el caso.
+			\item this. Dinámico versus estático. Relación con clausuras. En function this es cambiable (call, apply, bind) y se calcula en runtime dinámicamente. En Arrow this es fijo y se calcula por el compilador. Y no se puede cambiar.
+			\item Property 'name' de las funciones y arrow. Function versus arrow
+		\end{itemize}
+		
+		\item FP combinadores map, filter, reduce, forEch: lambda recibe elemento, posición y objeto
+		
+		\item Java: 	
+		\begin{itemize}
+			\item List y su método stream (conecta objetos con streams y estos tienen los combinadores de FP. Son lazy.
+			\item Patrón collect(Collectors.toList()). Nota: hay toSet(), toMap() entre muchos otros colectores en Collectors (ver ejercicio adelante opcional). Use collect(Collectors.toList()) cuando ocupe una lista y el stream no tenga toList
+		\end{itemize}
+		
+		\item Cálculo lambda
+		\begin{itemize}
+			\item Pruebas de identidades usando el Cálculo (no hubo tiempo en todos)
+			\begin{lstlisting}[language=JavaScript]
+				// Ejemplo en JS. 
+				
+				// Definamos:
+				const id = x => x
+				const compose = (f ,g) => x => f(g(x))
+				
+				// Probar: Para todo f se cumple -> compose(f, id) = f 
+				// Prueba:
+				compose(f, id) = ((f, g) => x => f(g(x)))(f, id) // def de compose
+				= x => f(id(x)) // beta reduccion
+				= x => f((x => x)(x)) // def de id
+				= x => f(x) // beta reduccion
+				= f // x => f(x) y f hacen funcionalmente lo mismo (eta-reduccion)
+				
+				// Por lo tanto, compose(f, id) = f 
+			\end{lstlisting}
+		\end{itemize}
+		
+		\item Java: interfaces y tipos de lambdas
+		\begin{itemize}
+			\item default methods en interfaces
+			\begin{lstlisting}[language=Java]
+				interface Saluter{
+					default void salute(String msg) {
+						System.out.println(msg);
+					}
+				}
+				
+				class Hello implements Saluter{} // no implementa salute
+				var hello = new Hello();
+				hello.salute("Hola Mundo"); // usa el de la interface --- IMPRIME Hola Mundo ---
+			\end{lstlisting}
+			
+			\item SAM: single abstract method. Tiene uno y solo un método abstracto
+			\begin{lstlisting}[language=Java]
+				interface Saluter{
+					void salute(String msg);
+				}
+				
+				Saluter hello = msg -> System.out.println(msg); // Saluter sirve como tipo para la lambda
+				hello,salute("Hola Mundo"); // --- IMPRIME Hola Mundo ---
+				
+				// Tambien se pudo hacer asi
+				Consumer<String> = msg -> System.out.println(msg);
+				msg.accept("Hola Mundo"); // --- IMPRIME Hola Mundo ---
+			\end{lstlisting}
+		\end{itemize}
+	\end{itemize}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		record Tuple<X, Y>(X x, Y y){}
+		record Person(String name, int age){}
+		¿Qué tipo se necesita para que la siguiente lambda compile (sustituya ??? y ???? por los mejores tipos que funcionen)
+		??? personToTuple(???? p){
+			return switch (p) {
+				case Person(var name, var age) -> new Tuple<>(name, age);
+				default -> throw new RuntimeException("not a person");
+			};}
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=Java,caption={Soluc. en Java aplicando Pattern-Matching}]
+		// Punto 5: Convertir un Person en Tuple<String, Integer> usando Pattern-Matching en Switch
+		
+		import java.util.function.*;
+		
+		public class Ejercicio01 {
+			// record generico que almacena dos valores de tipo arbitrario
+			public record Tuple<X, Y> (X x, Y y) {}
+			// recorde que representa una persona con nomre y edad
+			public record Person(String name, int age) {}
+			
+			// convierte un objeto en una tupla (nombre, edad) si es de tipo Person. Usamos PM en Switch
+			public static Tuple<String, Integer> personToTuple(Object p) {
+				return switch (p) {
+					case Person(var name, var age) -> new Tuple<>(name, age);
+					default -> throw new RuntimeException("not a person");
+				};
+			}
+			
+			public static void main(String[] args) {
+				// Instanciacion de prueba
+				var p = new Person("David", 21);
+				
+				// Conversion aplicando PM
+				var t1 = personToTuple(p);
+				System.out.println("t1 = (" + t1.x() + ", " +  t1.y() + ")");
+				
+				// Equivalente pero en lambda function
+				Function<Person, Tuple<String, Integer>> f = x -> new Tuple<>(x.name(), x.age());
+				var t2 = f.apply(p);
+				System.out.println("t2 = (" + t2.x() + ", " +  t2.y() + ")");
+			}
+		}
+	\end{lstlisting}
+	
+\end{document}

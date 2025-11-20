@@ -1,0 +1,184 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 30/10/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Patrones comunes de recursión en Prolog
+		\item Patrones de Listas
+		\item Patrones de Árboles
+		\item Evaluadores
+	\end{itemize}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		Escriba un quicksort en Prolog 
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% quicksort divides the list by choosing (arbitrary) the first element (pivot) and using this element to
+		% split the list into Left and Right. Left has all the elements smaller than the pivot. Right has all the elements
+		% larger than the pivot. [Left, pivot, Right].
+		
+		quicksort([], []).
+		quicksort([X|Xs], Ys) :-
+		partition(Xs, X, Left, Right),
+		quicksort(Left, Ls),
+		quicksort(Right, Rs),
+		append(Ls, [X|Rs], Ys).
+		
+		partition([], _, [], []).
+		partition([X|Xs], Y, [X|Ls], Rs) :-
+		X =< Y,
+		partition(Xs, Y, Ls, Rs).
+		partition([X|Xs], Y, Ls, [X|Rs]) :-
+		X > Y,
+		partition(Xs, Y, Ls, Rs).
+		
+		append([], Ys, Ys).
+		append([X|Xs], Ys, [X|Zs]) :-
+		append(Xs, Ys, Zs).
+		
+		% quicksort(Xs, Ys) sorts list Xs into ascending order list Ys (or Ys is an ordered permutation of Xs).
+		% Ys is a sorted [X|Xs] where Left and Right is a result of partitioning Xs by X, Ls and Rs are the sorted
+		% Left and Right recursively, and Ys is the result of appending [X|Rs] to Ls.
+		% partitioning[X|Xs] with Y gives list Ls (left) and Rs (right), if X is less than or equal Y and partitioning
+		% Xs with Y gives Ls and Rs.
+		% Base case is the empty list. 
+		
+		test :-
+		quicksort([3,1,4,1,5,9,2,6], Sorted),
+		writeln(Sorted).
+		
+		:- initialization(test).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [quicksort].
+		[1,1,2,3,4,5,6,9]
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{verbatim}
+		Añada exponenciación (** en Prolog)
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% eval(Expr, Context, Result) : Result is the value of evaluating expression Expr
+		
+		context_find(C, X, V) :-
+		member([X, V], C).
+		
+		is_binary(E, Oper, L, R) :-
+		E =.. [Oper, L, R],
+		member(Oper, [+, -, *, /, **]).
+		
+		% base case
+		eval(N, _, N) :- 
+		number(N). % check if N is a number
+		eval(X, C, V) :-
+		atom(X), 
+		context_find(C, X, V). 
+		eval(E, C, Result) :-
+		is_binary(E, Oper, L, R), % check if E is a binary expression
+		eval(L, C, RL),
+		eval(R, C, RR),
+		ER =.. [Oper, RL, RR],
+		Result is ER.
+		eval(- E, C, R) :-
+		eval(E, C, VE),
+		R is - VE. % change the sign of VE
+		
+		:-
+		E = x + 10 + -y,
+		C = [[x, 20], [y, 30]], % Memory/Context/Environment
+		eval(E, C, R),
+		format('>>> ~w --eval(~w)--> ~w', [E, C, R]),
+		E2 = x ** 2 + y,
+		C2 = [[x, 3], [y, 4]],
+		eval(E2, C2, R2),
+		format("E2=~w C=~w => ~w~n", [E2, C2, R2]).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [eval].
+		>>> x+10+ -y --eval([[x,20],[y,30]])--> 0E2=x**2+y C=[[x,3],[y,4]] => 13
+		true.
+	\end{lstlisting}
+
+\end{document}
+

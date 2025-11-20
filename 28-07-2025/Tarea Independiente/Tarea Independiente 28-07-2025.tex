@@ -1,0 +1,345 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{purple}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+\lstset{
+	language=Java,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b
+}
+
+\title{Tarea Independiente 28/07/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Paradigma Computacional
+		\item Rol de la IA en Diagrama Realidad-Humano-Modelo
+		\item Meta-Relaciones: is-A, ako, has-A
+		\item Meta-Lógica de is-A, ako, has-A (símbolos : y <:)
+		\item Relación dinámica versus estática en lenguajes de programación (PL)
+		\item Lenguajes de Programación (PL): Sintaxis versus Semántica
+		\item Arquitectura de Compilador para un PL
+		\item Máquina Virtual vs Real
+		\item Portabilidad
+		\item Analizador sintáctico
+		\item Analizador semántico (estático)
+		\item Error de sintaxis versus error semántico estático versus error semántico dinámico 
+		\item shell de sistema operativo (cmd). Variable de entorno PATH.
+		\item Tools: node y jshell
+	\end{itemize}
+	
+	\section*{Trivia (extra-curricular)}
+	
+	\begin{quote}
+		¿Desde la llegada de Colón a "América": ¿cuántos años pasaron antes de que la corona española reconociera que los nativos de "América" eran seres humanos? Fue ese reconocimento efectivo en la aplicación?
+	\end{quote}
+	
+	\subsection*{Respuesta}
+	
+	Legalmente, los indígenas de América fueron reconocidos como seres humanos, libres, con alma y derechos desde el año 1500, por orden de la Reina Isabel La Católica, quien los declaró vasallos de la Corona y prohibió su esclavización. La Corona Española promulgó leyes —como las Leyes de Burgos (1512) y las Leyes Nuevas (1542)— para proteger a los pueblos indígenas de los abusos coloniales.
+	
+	En el ámbito eclesiástico, el reconocimiento universal de la humanidad de los indígenas llegó en 1537 con la bula Sublimis "Deus", emitida por el papa Pablo III. Dado que Cristóbal Colón llegó a América en 1492, pasaron 45 años hasta que se emitió esta declaración papal. Sin embargo, el reconocimiento legal por parte de la Corona Española ocurrió mucho antes, apenas ocho años después del descubrimiento.
+	
+	Ahora, aunque la Corona Española reconoció legalmente a los indígenas como seres humanos, libres y con derechos desde el año 1500, ese reconocimiento no fue efectivo en la práctica. A pesar de leyes como las de Burgos y las Nuevas, y de la bula Sublimis Deus (1537), muchos colonizadores ignoraron estas normas y continuaron explotando y maltratando a los indígenas. Factores como la distancia con España, el interés económico, el racismo y la falta de control efectivo hicieron que la realidad en América estuviera muy lejos de lo que dictaban las leyes. Así, aunque el reconocimiento fue adelantado para su tiempo, su aplicación fue limitada e insuficiente.
+	
+	
+	\vspace{1em}
+	\noindent\textbf{Referencia:} \\
+	Martínez-Fornés, A. (2024, octubre 2). \textit{Lo que hizo la Corona española para proteger a los indígenas de América}. \textit{El Debate}. Recuperado de\\
+	\url{https://www.eldebate.com/espana/casa-real/20241002/hizo-corona-espanola-proteger-indigenas-america_231994.html}
+	
+	\section*{JIT COMPILATION (punto 0)}
+	
+	La compilación Just-In-Time (JIT) es una técnica utilizada en algunos entornos de ejecución, en la que el código fuente o intermedio se traduce a código máquina en tiempo de ejecución, es decir, mientras el programa se está ejecutando, en lugar de hacerlo de forma previa como en la compilación tradicional (Ahead-Of-Time).
+	
+	Esta estrategia busca combinar la rapidez inicial que ofrece la interpretación con el rendimiento optimizado de la compilación nativa.
+	
+	La compilación JIT es una técnica que busca el equilibrio entre rapidez de arranque y rendimiento a largo plazo. Al analizar el código en tiempo de ejecución y compilar solo las partes necesarias, ofrece una solución eficaz y flexible para aplicaciones que necesitan tanto agilidad como eficiencia.
+	
+	\section*{errores.jsh (punto 1)}
+	
+	\subsection*{script a testear}
+	
+	\begin{lstlisting}[caption={Script jshell errores.jsh}]
+		class MedioTransporte{}
+		class Automovil extends MedioTransporte{}
+		List<MedioTransporte> la = null
+		var lb = new ArrayList<Automovil>()
+		lb.add(new Automovil())
+		la = lb
+	\end{lstlisting}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.95\textwidth]{error.png}
+		\caption{Mensaje error script jshell}
+		\label{fig:01}
+	\end{figure}
+	
+	\subsection*{Justificación del error}
+	
+	Cuando ejecutamos el script, dará un error de tipo semántico estático (detectado en tiempo de compilación). Es un error semántico estático porque el compilador de Java detecta un problema de tipos incompatibles en tiempo de compilación.
+	
+	El error ocurre porque, aunque Automovil hereda de MedioTransporte, una lista de Automovil no es una lista de MedioTransporte. 
+	
+	\section*{Stack<T> \&\& Operators (punto 2)}
+	
+	\begin{quote}
+		Haga una clase Stack<T> en un paquete paradigms.operations.
+		
+		Stack permite size, top, pop, push, isEmpty definidas de la manera usual en cualquier pila. Hay Excepcions en donde corresponde.
+		Además nuestro Stack<T> tiene un método T operate(Operator oper) que se explica adelante, que es para ejecutar la operación oper usando el contenido de la pila.
+		Se va a pedir un diseño que Ud. debe seguir. Primero  obligatoriamente. Luego cuestionarlo y mejorarlo.
+		
+		a. Cree Operator como un enum que tiene ciertas operaciones. Por ejemplo ADD, MINUS, MULT y DIV.
+		
+		b. Cree una clase Operators que tiene un método int arityOf(Operator oper) que devuelve el número de operandos del Operator oper.
+		Con esto: cuando se llama a void Stack::operate(oper) sucede lo siguiente:
+		Se le pide a Operators el arity de oper, digamos que es n. Se sacan (pop) de la pila n objetos v\_n, v\_{n-1}, ..., v1 y dependiendo de oper se la hace la operación respectiva y el resultado se pone de vuelta en pila. Por ejemplo, si oper es ADD y n es su arity entonces se calcula v1 + v2 + ... + v\_n y ese resultado se pone (push) en la pila de vuelta. Se manejan excepciones
+		
+		c. Cree una clase de prueba paradigms.utils.test.TestStack que usando lo anterior crea y prueba casos de prueba.
+		Su proyecto se puede compilar y probar desde una consola (fuera de cualquier editor o IDE). No se revisa de otra forma.
+	\end{quote}
+	
+	\subsection*{Solución al problema planteado en Java}
+	
+	\begin{lstlisting}[caption={Clase Operator}]
+		package paradigms.operations;
+		
+		// Este enum define las operaciones basicas
+		public enum Operator {
+			ADD,
+			MINUS,
+			MULT,
+			DIV
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Operators}]
+		package paradigms.operations;
+		
+		/*Nos va a permitir consultar cuantos operandos requiere cada operacion*/
+		public class Operators {
+			
+			public static int arityOf(Operator oper) {
+				switch (oper) {
+					case ADD:
+					case MINUS:
+					case MULT:
+					case DIV:
+					return 2;
+					default:
+					throw new IllegalArgumentException("Operator not implemented: " + oper);
+				}
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase Stack}]
+		package paradigms.operations;
+		
+		import java.util.LinkedList;
+		import java.util.NoSuchElementException;
+		
+		/*Para efectos de este ejercicio, debemos crear nuestra propia clase Stack<T> generica,
+		* "Haga una clase Stack<T> en un paquete paradigms.operations". Por lo tanto, no podemos
+		* utilizar java.util.Stack; asi, recurrimos a LinkedList<T>, ya que proporciona todos los
+		* metodos necesarios para una pila.*/
+		public class Stack<T> {
+			private LinkedList<T> elements;
+			
+			public Stack() {
+				elements = new LinkedList<>();
+			}
+			
+			/*Cantidad de elementos*/
+			public int size() {
+				return elements.size();
+			}
+			
+			/*Indica si esta vacia*/
+			public boolean isEmpty() {
+				return elements.isEmpty();
+			}
+			
+			/*Consulta el tope*/
+			public T top() {
+				if (isEmpty()) {
+					throw new NoSuchElementException("Stack is empty - cannot top");
+				}
+				return elements.getFirst();
+			}
+			
+			/*Inserta un elemento*/
+			public void push(T item) {
+				elements.addFirst(item);
+			}
+			
+			/*Saca y retorna el tope*/
+			public T pop() {
+				if (isEmpty()) {
+					throw new NoSuchElementException("Stack is empty - cannot pop");
+				}
+				return elements.removeFirst();
+			}
+			
+			/*Aplica una operacion aritmetica, definida en Operator, sobre los elementos de la pila.
+			* 1. Consulta cuantos operandos se necesitan, usando Operators.arityOf()
+			* 2. Hace pop a los operandos de la pila.
+			* 3. Aplica la operacion aritmetica (solo soportando Integer).
+			* 4. Inserta el resultado de vuelta en la pila y retorna.*/
+			public T operate(Operator oper) {
+				// Consultamos la aridad (cantidad de operandos que requiere la operacion)
+				int arity = Operators.arityOf(oper);
+				
+				// Validamos que hayan sificientes elementos en la pila
+				if (size() < arity) {
+					throw new IllegalStateException("No hay suficientes elementos en la pila para esta operacion: " + oper);
+				}
+				
+				// Extraemos los operandos desde la pila (Last In, First Out)
+				T[] operands = (T[]) new Object[arity];
+				for(int i = arity - 1; i >= 0; i--) {
+					operands[i] = pop(); // Se guardan en orden inverso, para operar correctamente
+				}
+				
+				/*Asegurar que el tipo T es Integer*/
+				if(!(operands[0] instanceof Integer)) {
+					throw new UnsupportedOperationException("Only Integer operations are supported.");
+				}
+				
+				/*Realizar la operacion, segun el tipo*/
+				int result = (Integer) operands[0];
+				for(int i = 1; i < arity; i++) {
+					int value = (Integer) operands[i];
+					
+					switch (oper) {
+						case ADD:
+						result += value;
+						break;
+						case MINUS:
+						result -= value;
+						break;
+						case MULT:
+						result *= value;
+						break;
+						
+						case DIV:
+						if (value == 0) {
+							throw new ArithmeticException("Division by zero");
+						}
+						result /= value;
+						break;
+						
+						default:
+						throw new UnsupportedOperationException("Unsupported operation: " + oper);
+					}
+				}
+				
+				// Hacemos push al resultado devuelta en la pila
+				T resultWrapped = (T) Integer.valueOf(result);
+				push(resultWrapped);
+				return resultWrapped;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[caption={Clase tipo test TestStack}]
+		package paradigms.utils.test;
+		
+		import paradigms.operations.Operator;
+		import paradigms.operations.Stack;
+		
+		public class TestStack {
+			public static void main(String[] args) {
+				Stack<Integer> stack = new Stack<>();
+				
+				System.out.println("=== Test de pila con operaciones ===");
+				
+				//Push de algunos elementos
+				stack.push(10);
+				stack.push(5);
+				System.out.println("Pila despues de push(10), push(5): tamano = " + stack.size());
+				
+				//Operacion de suma (10 + 5)
+				Integer resultado = stack.operate(Operator.ADD);
+				System.out.println("Resultado de ADD: " + resultado);
+				
+				// Push de mas elementos
+				stack.push(3);
+				stack.push(2);
+				System.out.println("Pila despues de push(3), push(2): tamano = " + stack.size());
+				
+				// Multiplicacion (3 * 2)
+				resultado = stack.operate(Operator.MULT);
+				System.out.println("Resultado de MULT: " + resultado);
+				
+				// Resta (15 - 6)
+				resultado = stack.operate(Operator.MINUS);
+				System.out.println("Resultado de MINUS: " + resultado);
+				
+				System.out.println("Top final de la pila: " + stack.top());
+				
+				// Probamos division entre cero
+				try {
+					stack.push(0);
+					stack.operate(Operator.DIV);
+				}
+				catch (Exception e) {
+					System.out.println("Division entre cero: " + e.getMessage());
+				}
+				
+				// Probamos operar sin suficientes elementos
+				try{
+					stack = new Stack<>();
+					stack.push(1);
+					stack.operate(Operator.ADD);
+				} catch (Exception e) {
+					System.out.println("Falta de operandos: " + e.getMessage());
+				}
+			}
+		}
+	\end{lstlisting}
+	
+\end{document}

@@ -1,0 +1,146 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 27/10/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Patrones para repeticiones o "loops" de iteradores (generador/consumidor) y backtracking
+		\item Metapredicados
+		\item forall
+		\item findall
+		\item \_+ (not)
+		\item call, apply
+		\item Haciendo un metapredicado como \_+ usando call
+		\item maplist, includes/excludes, foldl
+	\end{itemize}
+	
+	\section*{Ejercicio 0}
+	
+	\begin{verbatim}
+		Operador ternario: Escriba if_then_else(?C, ?T, ?E): si C es true llama a T en otro caso llama a E. No hace backtracking en C.
+	\end{verbatim}
+	
+	\subsection{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% if_then_else(+Cond, +Then, +Else)
+		% Ejecuta Then si Cond tiene exito una vez, de lo contrario ejecuta Else.
+		if_then_else(C, T, _E) :-
+			call(C),
+			!,
+			call(T).
+		if_then_else(_, _, E) :-
+			call(E).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [if_then_else].
+		true.
+		
+		?- if_then_else(true, writeln('yes'), writeln('no')).
+		yes
+		true.
+		
+		?- if_then_else(fail, writeln('yes'), writeln('no')).
+		no
+		true.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		1) Escriba una versión propia recursiva  de maplist: map(?G, +L, -M)  que hace lo mismo que maplist de Prolog.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		% map(+Goal, +ListIn, -ListOut)
+		% Aplica Goal a cada elemento de ListIn, produciendo ListOut.
+		map(_, [], []).
+		map(G, [X|Xs], [Y|Ys]) :-
+		call(G, X, Y),
+		map(G, Xs, Ys).
+		
+		
+		% predicado para las pruebas: duplica un numero
+		double(X, Y) :-
+		Y is X * 2.
+		
+		% Ejemplo de uso:
+		:- writeln('prueba map casero'),
+		map(double, [1,2,3,4], R1),
+		writeln(R1).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={}]
+		content...
+	\end{lstlistin?- [map].
+\end{document}

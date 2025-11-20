@@ -1,0 +1,90 @@
+> obj = undefined
+undefined
+> obj.name
+Uncaught TypeError: Cannot read properties of undefined (reading 'name')
+
+> function foo() { console.log('-->', this.x) }
+undefined
+> foo()
+--> undefined
+undefined
+> this.x = 'soy el x de global'
+'soy el x de global'
+> foo()
+--> soy el x de global
+undefined
+> this==global
+true
+> 
+> function goo(x) {
+... function foo(a, b) {
+... console.log('--->', a, b, this.x) 
+... }
+... }
+undefined
+> 
+> foo.apply({x:'***!!**'},[1, 2])
+--> 1 2 ***!!**
+undefined
+> 
+> foo.name
+'foo'
+> let hoo = function(){}
+undefined
+> hoo
+[Function: hoo]
+> hoo.name
+'hoo'
+> let moo = () => {}
+undefined
+> moo.name
+'moo'
+> 
+> let poo = function() { return function(){} }
+undefined
+> poo.name
+'poo'
+> poo().name
+''
+> let qoo = function() { return function qoocito (){} }
+undefined
+> qoo().name
+'qoocito'
+> 
+> a = [...'abcd']
+[ 'a', 'b', 'c', 'd' ]
+> a.map((e, i) => [e, i])
+[ [ 'a', 0 ], [ 'b', 1 ], [ 'c', 2 ], [ 'd', 3 ] ]
+> a.map((e, i) => [e, i]).forEach( ([e, i]) => console.log(e, "en", i))
+a en 0
+b en 1
+c en 2
+d en 3
+undefined
+
+jshell> var a = List.of(10, -4, 40)
+a ==> [10, -4, 40]
+
+jshell> a.stream().map(e -> e + 666).forEach(e -> System.out.println(e))
+676
+662
+706
+
+jshell> interface Saluter {void salute(String msg); }
+|  replaced interface Saluter
+
+jshell> Saluter saluter = msg -> System.out.println(msg)
+saluter ==> $Lambda/0x000076a52000b610@6093dd95
+
+jshell> saluter.salute("Hola")
+Hola
+
+
+
+
+
+
+
+
+
+

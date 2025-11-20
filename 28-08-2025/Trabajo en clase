@@ -1,0 +1,51 @@
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ node
+Welcome to Node.js v22.18.0.
+Type ".help" for more information.
+> a = [1,2,3,4]
+[ 1, 2, 3, 4 ]
+> a.reduce((z,e) => z+e, 0) // suma empezando del cero
+10
+> a.reduce((z,e) => z+e, 5) // suna a partir del 5
+15
+> a.reduce((z,e) => z*e, 1) // calculo de factorial
+24
+> const fact = a => a.reduce( (z,e) => z*e, 1 ) // funcion factorial
+undefined
+> console.log(fact(a))
+24
+
+
+jshell> Function<Integer, Integer> add = x -> x+1
+add ==> $Lambda/0x0000702773008a18@3eb07fd3
+
+jshell> add(666)
+|  Error:
+|  cannot find symbol
+|    symbol:   method add(int)
+|  add(666)
+|  ^-^
+
+jshell> add.apply(666)
+$2 ==> 667
+
+En java, vemos como el apply @ cambia respecto a la lambda
+
+jshell> Function<Integer, Boolean> add = x -> x+1 > 0
+add ==> $Lambda/0x0000702773009218@4b85612c
+
+Forma mas dry menos verbose de la funcion anterior:
+
+jshell> Predicate <Integer> add = x -> x+1 > 0
+add ==> $Lambda/0x0000702773009ab0@7aec35a
+
+jshell> add.test(666)
+$5 ==> true
+
+jshell> add.test(-2)
+$6 ==> false
+
+jshell> 
+
+
+
+

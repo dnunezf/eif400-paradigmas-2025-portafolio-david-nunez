@@ -1,0 +1,14 @@
+¿Cómo compilar un proyecto Java desde la terminal?
+
+1. Borra la carpeta out
+
+2. Abrir desde la raiz del proyecto (donde se encuentra la carpeta source)
+
+3. Compilar todos los archivos Java
+
+javac -d out src/paradigms/operations/*.java src/paradigms/utils/test/*.java
+
+4. Ejecutar TestStack
+
+java -cp out paradigms.utils.test.TestStack
+

@@ -1,0 +1,405 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 28/08/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Rol de un linker
+		\item Idea de un jlink/jpackage en Java
+		\item Ventajas
+		\item Customizar un entorno para una app (menos tamaño de la app)
+		\item Combinadores en FP
+		\item forEach
+		
+		\subsection*{Explicación breve}
+		\begin{verbatim}
+			a.forEach(f) es como si fuera un bloque de código imperativo:
+			
+			{
+				f(a[0]);
+				f(a[1]);
+				...
+				f(a[a.length - 1]);
+			}
+			Por ejemplo:
+			[..."abcd"].forEach(e => console.log(e))
+			Imprime las letras a, b, c, d
+		\end{verbatim}
+		
+		\item apply (@) combinador 'invisible' en métodos pero no en lambdas
+		\item Diferencias entre JS versus Java: @ es variable, depende del tipo de lambda
+		\item Function (@ = apply)
+		\item Predicate (@ = test)
+		\item UnaryOperator (@ = apply)
+		\item zip
+		\item unzip
+		\item every
+		\item some
+		\item Caso de estudio: un modelo de objetos OOP en JS para un lenguaje
+		\item ES6: estándar que permite class en JS
+		\item class
+		\item constructor
+		\item rest (análodo de spread)
+		\item super
+		\item this
+		\item get
+		\item toString
+		\item Modelo OOP
+		\item ast
+		
+	\end{itemize}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{verbatim}
+		1) ¿Qué tipo y @ serían válidos en Java para cada una de las siguientes declaraciones (Ud. debe sustituir ??? por algo que el compilador acepte y se pueda ejecutar. Para el tipo busque una opción apropiada.
+		a) ??? foo = () -> 666
+		print( foo.???() )
+		
+		b) ??? goo = x -> print(x)
+		goo.???(666)
+		
+		c) ??? hoo = (x, y) -> x*x - 2*x*y + y*y
+		print( hoo.???(666, 0) )
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=Java, caption={Sol. en Java}]
+		import java.util.function.BiFunction;
+		import java.util.function.Consumer;
+		import java.util.function.IntBinaryOperator;
+		import java.util.function.Supplier;
+		
+		public class Main {
+			public static void main(String[] args) {
+				/*
+				a) ??? foo = () -> 666
+				print( foo.???() )
+				* */
+				Supplier<Integer> foo = () -> 666;
+				System.out.println(foo.get());
+				
+				/*
+				* ??? goo = x -> print(x)
+				goo.???(666)
+				* */
+				Consumer<Integer> goo = x -> System.out.println(x); // NOTA: PUEDO COLOCAR IntConsumer insteadOf Consumer
+				goo.accept(666);
+				
+				/*
+				* ??? hoo = (x, y) -> x*x - 2*x*y + y*y
+				print( hoo.???(666, 0) )
+				* */
+				IntBinaryOperator hoo = (x, y) -> x*x - 2*x*y + y*y;
+				System.out.println(hoo.applyAsInt(666, 0));
+				
+				/*Alternativa ejercicio c*/
+				BiFunction<Integer, Integer, Integer> hoo2 = (x, y) -> x*x - 2*x*y + y*y;
+				System.out.println(hoo2.apply(666, 0));
+			}
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 02}
+	
+	\begin{verbatim}
+		Considere el modelo ast en JS. Añada:
+		a) Un método same(other) a la classe Node que permita saber (falso o verdadero) si el nodo es lo mismo que el other si other es un Node (si tienen la misma head y mismos children). Si other no es de tipo Node retorna false.
+		b) Un método que diga si Node es o no una hoja (no tiene head ni children)
+		c) Un método que calcule la altura de un Node (largo del camino más largo desde el nodo hasta cualquier hijo (head, children)
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	Este es nuestro modelo de AST, previo al desarrollo de los ejercicios:
+	
+	\begin{lstlisting}[language=JavaScript,caption={ast.mjs}]
+		// No puede haber mas de un constructor, no hay sobrecarga
+		export class Node {
+			// ... = rest, queremos tener 0, 1, 2,...., n childrens
+			constructor(head, ...children) {
+				this.head = head;
+				this.children = children;
+			}
+		}
+		
+		export class Num extends Node {
+			constructor(value) {
+				super(value);
+			}
+			
+			get value() {
+				return this.head;
+			}
+			
+			toString() {
+				return `${this.value}`;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript, caption={main.mjs}]
+		import {Node, Num} from  './ast.mjs';
+		
+		function test_case_0() {
+			const n = new Node("add", 1, 1, 2, 3)
+			console.log("Node=", n)
+			
+			const num = new Num(666)
+			console.log("Num as Node=", num)
+			console.log("Num.value()=", num.value)
+			console.log("Num.toString()=", num.toString())
+			
+		}
+		
+		function main() {
+			test_case_0()
+		}
+		
+		main()
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={2a}]
+		/* Funciones relacionadas al ejercicio 2.a:
+		Metodo same(other): retorna true si el nodo actual y "other" son equivalentes
+		(igual head y mismos children recursivamente). Retorna false si "other" no es Node.
+		*/
+		
+		// Verifica si un valor es instancia de Node
+		const isNode = (x) => x instanceof Node;
+		
+		// Compara dos hijos:
+		// - Si ambos son Node, llama recursivamente a same
+		// - Si no, compara valores directamente
+		const sameChild = (a, b) =>
+		isNode(a) && isNode(b) ? a.same(b) : Object.is(a, b);
+		
+		// Compara dos arrays de children:
+		// - Deben tener la misma longitud
+		// - Cada elemento debe ser igual en la misma posicion
+		const sameArray = (xs, ys) =>
+		xs.length === ys.length && xs.every((x, i) => sameChild(x, ys[i]));
+		
+		/* 2.a: Compara el nodo actual con "other" */
+		same(other) {
+			return (
+			isNode(other) && // 1. Debe ser Node
+			Object.is(this.head, other.head) && // 2. head iguales
+			sameArray(this.children, other.children) // 3. children iguales
+			);
+		}
+		
+		function test_case_1() {
+			const a = new Node("add", new Num(1), new Num(2));
+			const b = new Node("add", new Num(1), new Num(2));
+			const c = new Node("sub", new Num(2), new Num(3));
+			
+			console.log(a.same(b)); // true
+			console.log(a.same(c)); // false
+			console.log(a.same(42)); // false
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={2b}]
+		/* 2.b: Retorna true si el nodo es hoja.
+		Un nodo es hoja cuando no tiene head y no tiene children */
+		isLeaf() {
+			return this.head == null && this.children.length === 0;
+		}
+		
+		function test_case_2() {
+			const a = new Node(null);
+			const b = new Node("x");
+			const c = new Node(null, 1, 2);
+			
+			console.log(a.isLeaf()); // true
+			console.log(b.isLeaf()); // false
+			console.log(c.isLeaf()); // false
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={2c}]
+		/* Funciones relacionadas al ejercicio 2.c:
+		Metodo height(): calcula la altura de un Node
+		(camino mas largo desde el nodo hasta una hoja).
+		*/
+		
+		// Retorna la altura de un hijo:
+		// - Si es Node, usa su metodo height
+		// - Si no lo es, la altura se toma como 0
+		const childHeight = (c) => (isNode(c) ? c.height() : 0);
+		
+		// Funcion auxiliar para quedarse con el mayor de dos valores
+		const max = (a, b) => (a > b ? a : b);
+		
+		// Calcula la altura de un Node n:
+		// - Si no tiene hijos -> altura 0
+		// - Si tiene hijos -> 1 + maximo de las alturas de sus hijos
+		const heightOf = (n) =>
+		n.children.length === 0 ? 0 : 1 + n.children.map(childHeight).reduce(max);
+		
+		/* 2.c: Retorna la altura del nodo actual */
+		height() {
+			return heightOf(this);
+		}
+		
+		function test_case_3() {
+			const leaf = new Num(7);
+			const tree = new Node("add", leaf, new Node("null", new Num(1), new Num(2)));
+			
+			console.log(leaf.height()); // 0
+			console.log(tree.height()); // 2
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{quote}
+		Añada un AST para identificador (Ident)
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		// Clase Ident: modela un identificador dentro del AST
+		export class Ident extends Node {
+			// name = lexema (ej. "x"); no tiene children
+			constructor(name) {
+				super(name);
+			}
+			
+			// Devuelve el lexema del identificador
+			get name() {
+				return this.head;
+			}
+			
+			// Representacion como string (solo el nombre)
+			toString() {
+				return `${this.name}`;
+			}
+		}
+		
+		function test_case_4() {
+			const x = new Ident("x");
+			const y = new Ident("y");
+			
+			console.log(String(x)); // "x"
+			console.log(x.same(new Ident("x"))); // true
+			console.log(x.same(y)); // false
+		}
+	\end{lstlisting}
+	
+	\section*(Ejercicio 4)
+	
+	\begin{quote}
+		Añada un AST Operation(operator, ...args) que modele una operación como una suma o una multiplicación.
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		// Modela una operacion n-aria ('+', '-', '*', '/')
+		export class Operation extends Node {
+			constructor(operator, ...args) {
+				super(operator, ...args);
+				this.operator = operator;
+			}
+			
+			// Lista de argumentos de la operacion
+			get args() {
+				return this.children;
+			}
+			
+			// Cantidad de argumentos
+			arity() {
+				return this.children.length;
+			}
+			
+			toString() {
+				const argsStr = this.args.map(String).join(", ");
+				return `${this.operator}(${argsStr})`;
+			}
+		}
+		
+		function test_case_5() {
+			const x = new Ident("x");
+			const expr = new Operation(
+			"+",
+			x,
+			new Num(2),
+			new Operation("*", new Num(3), x)
+			);
+			
+			console.log(String(expr)); // "+(x, 2, *(3, x))"
+			console.log(expr.arity()); // 3
+		}
+	\end{lstlisting}
+\end{document}
