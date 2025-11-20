@@ -1,0 +1,77 @@
+En JS (arrow function):
+
+> const hola = "hola"
+undefined
+> const hola2 = () => "hola"
+undefined
+> hola2()
+'hola'
+> hola2(666)
+'hola'
+> hola2(666, [])
+'hola'
+> hola2.length
+0
+
+En Python (lambda function):
+
+>>> id = lambda x : x
+>>> id
+<function <lambda> at 0x77fdaa58eb60>
+>>> hola2 = lambda : "hola"
+>>> hola2()
+'hola'
+>>> add = lambda x,y : x + y + 10
+>>> add(10,20)
+40
+
+En Java, para construir lambda functions usamos declaramos function<tipo_recibe, tipo_retorna>
+
+jshell> Function<Integer, Integer> add = x -> 666
+add ==> $Lambda/0x000076ea9c00a208@27efef64
+
+jshell> add(10)
+|  Error:
+|  cannot find symbol
+|    symbol:   method add(int)
+|  add(10)
+|  ^-^
+
+jshell> 
+jshell> add.apply(10)
+$3 ==> 666
+
+jshell> Function<Object, Object> id = x -> x
+id ==> $Lambda/0x000076ea9c00b000@3bfdc050
+
+jshell> id.apply("hola")
+$6 ==> "hola"
+
+jshell> id.apply(666) + 10
+|  Error:
+|  bad operand types for binary operator '+'
+|    first type:  java.lang.Object
+|    second type: int
+|  id.apply(666) + 10
+|  ^----------------^
+
+jshell> id.apply(666) * 10
+|  Error:
+|  bad operand types for binary operator '*'
+|    first type:  java.lang.Object
+|    second type: int
+|  id.apply(666) * 10
+|  ^----------------^
+
+SOLUCION AL ERROR, APLICANDO GENERICS. PERO, NO PODEMOS APLICAR GENERICS A LAMBDA FUNCTIONS
+
+jshell> <T> T id(T x) { return x; }
+|  replaced method id(T)
+
+jshell> id(666) * 10
+$10 ==> 6660
+
+
+
+
+

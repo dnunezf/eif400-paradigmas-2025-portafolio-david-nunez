@@ -1,0 +1,234 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 14/08/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Type como familia de valores (no lo vimos)
+		\item Type safety (polución de memoria)
+		\item Tipo wide (amplio) versus narrow (angosto)
+		\item Ventajas de hacer narrow types
+		\item Inferencia de tipos
+		\item AST con lambda y apply (call, invoke) @
+		\item Cálculo Lambda como máquina de calcular (computar, evaluar) AST's
+		\item Scope (no lo vimos)
+		\item Reducción alpha (cambio de variable)
+	\end{itemize}
+	
+	\section*{Punto 0 'let versus var en JS'}
+	
+	\begin{quote}
+		Corra este ejemplo y saque conclusiones sobre scope (salga de node después de cada  ejemplo)
+		
+		\begin{lstlisting}[language=JavaScript]
+			// Ejemplo A (var)
+			var x = 666
+			if (true){
+				var x = 0
+				console.log("A then", x)
+			} else{
+				console.log("A else", x)
+			}
+			console.log("A x=", x)
+			
+			// Ejemplo B (let)
+			let x = 666
+			if (true){
+				var x = 0
+				console.log("B then", x)
+			} else{
+				console.log("B else", x)
+			}
+			console.log("B x=", x)
+			
+			// Ejemplo C (var function)
+			var x = 666
+			function foo(){
+				if (false){
+					var x = 0
+					console.log("C then", x)
+				} else{
+					console.log("C else", x)
+				}
+			}
+			console.log("C x=", x)
+		\end{lstlisting}
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	Al ejecutar los tres algoritmos en Node se obtuvieron los siguientes resultados:
+	
+	\subsubsection*{Ejemplo A (var en bloque if)}
+	Salida:
+	\begin{lstlisting}[language=JavaScript]
+		A then 0
+		A x= 0
+	\end{lstlisting}
+	
+	Conclusión: \texttt{var} no es \textit{block-scoped}, sino \textit{function-scoped}.  
+	La instrucción \texttt{var x = 0} dentro del \texttt{if} sobrescribe la variable global.  
+	Por eso, al final \texttt{x} vale 0.
+	
+	\subsubsection*{Ejemplo B (mezcla let + var)}
+	Salida:
+	\begin{lstlisting}[language=JavaScript]
+		SyntaxError: Identifier 'x' has already been declared
+	\end{lstlisting}
+	
+	Conclusión: no se pueden redeclarar en el mismo ámbito variables con \texttt{let} y \texttt{var}.  
+	\texttt{let} es \textit{block-scoped} y bloquea redeclaraciones en el mismo ámbito,  
+	mientras que \texttt{var} es \textit{function-scoped}.
+	
+	\subsubsection*{Ejemplo C (var dentro de función)}
+	Salida:
+	\begin{lstlisting}[language=JavaScript]
+		C x= 666
+	\end{lstlisting}
+	
+	Conclusión: dentro de \texttt{foo}, la declaración \texttt{var x} es \textit{hoisted} al inicio de la función,  
+	pero como \texttt{foo()} nunca se invoca, no afecta el valor de la variable global.  
+	La función define un ámbito independiente, por lo que afuera \texttt{x} sigue siendo 666.
+	
+	\subsubsection*{Síntesis}
+	En general, el uso de \texttt{let} evita efectos colaterales como los observados en el Ejemplo A,  
+	al respetar el alcance de bloque y prevenir redeclaraciones.
+	
+	\section*{Punto 1}
+	
+	\begin{quote}
+		Considere estas declaraciones en JS
+		
+		\begin{lstlisting}[language=JavaScript]
+			const choose = (p, f, g) => x => p(x) ? f(x) : g(x)
+			const False = x => false
+			const True = x => true
+			const and = (f, g) => x => f(x) && g(x)
+			const not = f => x => !f(x)
+		\end{lstlisting}
+	\end{quote}
+	
+	\section*{Punto 2 -SOLUCIONADO EN EL CUADERNO DE PRÁCTICA-}
+	
+	\section*{Punto 4}
+	
+	\begin{quote}
+		Considere el siguiente código en Java
+		
+		\begin{lstlisting}[language=Java]
+			<S, T, R> Function<S, R> comp(Function<S, T> f, Function<T, R> g){
+				return (S x) -> g.apply(f.apply(x));
+			}
+		\end{lstlisting}
+		
+		a) Pruebe que compila en Jshell
+		b) Cambie por
+		
+		\begin{lstlisting}[language=Java]
+			<S, T, R> Function<S, R> comp(Function<S, T> f, Function<T, R> g){
+				return x -> g.apply(f.apply(x));
+			}
+		\end{lstlisting}
+		
+		Verfique que igualmente compila
+		¿Qué feature de Javac permitió que también compile a pesar del cambio
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	Primero, verificamos que el código solicitado en \textbf{4.a} compila en Jshell:
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{img1.png}
+		\caption{Ejecución en Jshell del código 4.a}
+		\label{fig:01}
+	\end{figure}
+	
+	Luego, verificamos que el código solicitado en \textbf{4.b} compila en Jshell:
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{img2.png}
+		\caption{Ejecución en Jshell del código 4.b}
+		\label{fig:02}
+	\end{figure}
+	
+	La razón por la que la segunda versión también compila es que \texttt{javac} usa 
+	\textbf{type inference con \textit{target typing} en lambdas}. 
+	
+	El compilador no necesita que se escriba \texttt{(S x)}, porque deduce automáticamente 
+	el tipo de \texttt{x} a partir del tipo esperado: la interfaz funcional 
+	\texttt{Function<S,R>} y los genéricos \texttt{S}, \texttt{T}, \texttt{R}.  
+	
+	En otras palabras, \texttt{javac} infiere el tipo del parámetro de la lambda usando 
+	el contexto, por eso basta con escribir \texttt{x -> g.apply(f.apply(x))}.
+	
+\end{document}

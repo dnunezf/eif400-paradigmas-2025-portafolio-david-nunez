@@ -1,0 +1,91 @@
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ jshell
+|  Welcome to JShell -- Version 21.0.8
+|  For an introduction type: /help intro
+
+jshell> int x = 666.66
+|  Error:
+|  incompatible types: possible lossy conversion from double to int
+|  int x = 666.66;
+|          ^----^
+
+jshell> 
+
+jshell> \exit
+|  Error:
+|  illegal character: '\'
+|  \exit
+|  ^
+|  Error:
+|  reached end of file while parsing
+|  \exit
+|       ^
+
+jshell> /exit
+|  Goodbye
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ node
+Welcome to Node.js v22.18.0.
+Type ".help" for more information.
+> "12" + 3
+'123'
+> 
+(To exit, press Ctrl+C again or Ctrl+D or type .exit)
+> 
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ python
+Python 3.13.5 (main, Jul 15 2025, 19:36:41) [GCC 13.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> "23" + 1
+Traceback (most recent call last):
+  File "<python-input-0>", line 1, in <module>
+    "23" + 1
+    ~~~~~^~~
+TypeError: can only concatenate str (not "int") to str
+>>> True + 1
+2
+>>> 
+KeyboardInterrupt
+>>> 
+KeyboardInterrupt
+>>> exit()
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ jshell
+|  Welcome to JShell -- Version 21.0.8
+|  For an introduction type: /help intro
+
+jshell> "12" + 3
+$1 ==> "123"
+
+jshell> /exit
+|  Goodbye
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ python
+Python 3.13.5 (main, Jul 15 2025, 19:36:41) [GCC 13.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> "-" * 10
+'----------'
+>>> 
+
+Solucion ejercicio choose(p, f, g)
+
+dnunezf@dnunezf-IdeaPad-5-15ITL05:~$ node
+Welcome to Node.js v22.18.0.
+Type ".help" for more information.
+> var choose = (p, f, g) => (x) => p(x) ? f(x) : g(x)
+undefined
+> choose(x => x > 0, x => x ** 2, x => x + 1)
+[Function (anonymous)]
+> var foo = choose(x => x > 0, x => x ** 2, x => x + 1)
+undefined
+> foo(5)
+25
+> fpp(-4)
+Uncaught ReferenceError: fpp is not defined
+> foo(-4)
+-3
+> choose(x => x > 0, x => x ** 2, x => x + 1)(-5)
+-4
+> choose(x => x > 0, x => x ** 2, x => x + 1)(-4)
+-3
+> 
+
+> var f= g => x => g(x) + 10
+undefined
+> f(x => x ** 2)(3)
+19

@@ -1,0 +1,333 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 11/08/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Lambda y el cálculo lambda de Church
+		\item Tipos en tiempo de compilación
+		\item Tipos en tiempo de ejecución
+		\item Lambdas en Java
+		\item Método versus lambda en Java
+		\item El rol del Typer en Java 
+		\item Lenguaje estáticamente tipado versus dinámicamente tipado
+		\item AST (equivalente al árbol de expresión de Estructuras Discretas)
+		\item Tablas de símbolos
+		\item Typer de Java
+		\item lambda versus método en Java 
+		\item Tipo genérico
+		\item Método como parámetro de tipo genérico
+		\item Extra: preprocesador, macros y templates en C++
+	\end{itemize}
+	
+	\section*{Ejercicio 1}
+	
+	\begin{quote}
+		a) Considere esta función add en JS:
+		
+		\begin{lstlisting}[language=JavaScript]
+			const add = (f, g) => x => f(x) + g(x)
+		\end{lstlisting}
+
+		Pruebe que da lo mismo add(add(f, g), h) que add(f, add(g, h)) es decir, add es asociativa.
+		
+		b) Construya una lambda zero tal que, add() = 0,  add(zero, f) dé igual que add(f, zero) y dé igual que f para cualquier lambda f.
+		
+		c) Construya una función max\_function(f, g) que cumpla: max\_function(f,g)(x) = max(f(x), g(x)) para todo x de tipo number. dode max(x, y) calcula el máximo entre cualesquiera números x y y.
+	\end{quote}
+	
+	\subsection*{Solución punto 1.a}
+	
+	Ejercicio demostrado en el cuaderno de práctica.
+	
+	\subsection*{Solución punto 1.b}
+	
+	Dicho problema pide construir una función zero que sea el elemento neutro de la operación add. Debe cumplir que para cualquier funcion f:
+	
+	\begin{itemize}
+		\item add(zero, f) = f
+		\item add(f, zero) = f	
+	\end{itemize}
+	
+	Además, add(zero, zero) produce siempre 0 + 0 = 0
+	
+	\begin{lstlisting}[language=JavaScript,caption={Solucion en JavaScript}]
+		// DEFINIMOS ADD COMO LAMBDA
+		const add = (f, g) => (x) => f(x) + g(x);
+		
+		// DEFINIMOS ZERO COMO LAMBDA. RETORNA CERO
+		const zero = (x) => 0;
+		
+		// EJEMPLO DE FUNCIONES
+		const f = (x) => 2 * x;
+		const g = (x) => x + 1;
+		
+		// PROBAMOS
+		console.log(add(zero, f)(5)); // resultado es 10 = 2 * 5
+		console.log(add(f, zero)(5)); // resultado es 10 = 2 * 5
+		console.log(add(zero, zero)(5)); // resultado es 0
+	\end{lstlisting}
+	
+	\subsection*{Solución punto 1.c}
+	
+	La función max\_function devuelve el mayor de los números que recibe. Luego, se aplica a los valores calculados por f, g para el mismo x. El resuktado será una nueva función que, dado un número, siempre entrega el mayor de f(x) y g(x).
+	
+	\begin{lstlisting}[language=JavaScript, caption={Solución en JavaScript}]
+		// max_function retorna una funcion que calcula el maximo de f(x) y g(x)
+		const max_function_with_math = (f, g) => (x) => Math.max(f(x), g(x));
+		const max_function_without_math = (f, g) => (x) => f(x) >= g(x) ? f(x) : g(x);
+		
+		// construimos algunas funciones
+		const f = (x) => 2 * x;
+		const g = (x) => x + 5;
+		
+		// probamos
+		console.log(max_function_with_math(f, g)(2)); // resultado es 7, Math.max(4,7)
+		console.log(max_function_with_math(f, g)(10)); // resultado es 20, Math.max(20,15)
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2}
+	
+	\begin{quote}
+		Haga lo equivalente que 1 pero en Java.
+	\end{quote}
+	
+	\subsection*{Solución punto 2.b}
+	
+	\begin{lstlisting}[language=Java,caption={Solución en Java}]
+		import java.util.function.Function;
+		
+		public class Ejercicio2B
+		{
+			// add: suma de funciones
+			public static Function<Integer, Integer> add(Function<Integer, Integer> f, Function<Integer, Integer> g) {
+				return x -> f.apply(x) + g.apply(x);
+			}
+			
+			// zero: elemento neutro
+			public static Function<Integer, Integer> zero = x -> 0;
+			
+			public static void main(String[] args) {
+				// creamos las funciones
+				Function<Integer, Integer> f = x -> 2 * x;
+				Function<Integer, Integer> g = x -> x + 1;
+				
+				// prueba
+				System.out.println(add(zero, f).apply(5)); // 10
+				System.out.println(add(f, zero).apply(5)); // 10
+				System.out.println(add(zero, zero).apply(5)); // 0
+			}
+		}
+	\end{lstlisting}
+	
+	\subsection*{Solución punto 2.c}
+	
+	\begin{lstlisting}[language=Java,caption={Solución en Java}]
+		import java.util.function.Function;
+		
+		public class Ejercicio2C {
+			// max_function utilizando Math.max
+			public static Function<Integer, Integer> maxFunctionWithMath(Function<Integer, Integer> f, Function<Integer, Integer> g) {
+				return x -> Math.max(f.apply(x), g.apply(x));
+			}
+			
+			// max_function sin Math.max
+			public static Function<Integer, Integer> maxFunctionWithoutMath(Function<Integer, Integer> f, Function<Integer, Integer> g) {
+				return x -> f.apply(x) >= g.apply(x) ? f.apply(x) : g.apply(x);
+			}
+			
+			public static void main(String[] args) {
+				// construimos las funciones
+				Function<Integer, Integer> f = x -> 2 * x;
+				Function<Integer, Integer> g = x -> x + 5;
+				
+				// pruebas maxFunctionWithMath
+				System.out.println(maxFunctionWithMath(f, g).apply(2));   // 7
+				System.out.println(maxFunctionWithMath(f, g).apply(10));  // 20
+				
+				// prueba maxFunctionWithoutMath
+				System.out.println(maxFunctionWithoutMath(f, g).apply(2));   // 7
+				System.out.println(maxFunctionWithoutMath(f, g).apply(10));  // 20
+			}
+		}
+	\end{lstlisting}
+		
+	\section*{Ejercicio 3}
+	
+	\begin{quote}
+		Traduzca a Java el siguiente código 
+		
+		\begin{lstlisting}[language=Java]
+			template <typename T> T max(T a, T b) {
+				return (a > b) ? a : b;
+			}
+			int main() {
+				int x = 5, y = 10;
+				std::cout << max(x, y) << std::endl;
+				double a = 666.5, b = 665.8;
+				std::cout << max(a, b) << std::endl;
+				return 0;
+			}
+		\end{lstlisting}
+
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	Primero, debemos entender el problema. Utilizaremos genéricos con restricciones.
+	
+	\texttt{<T extends Comparable<? super T>> } exige que el tipo T implemente Comparable, accediendo al método compareTo para establecer un orden.
+	
+	\texttt{a.compareTo(b)} devuelve
+	\begin{itemize}
+		\item valor positivo si a mayor que b
+		\item 0 si son iguales
+		\item valor negativo si a menor que b
+	\end{itemize}
+	
+	\begin{lstlisting}[language=Java, caption={Solución en Java, utilizando genéricos con restricciones}]
+		public class main {
+			/*T extends Comparable<? super T> permite que T use compareTo, para compararse con su tipo o super-tipos.*/
+			public static <T extends Comparable<? super T>> T max(T a, T b) {
+				/*compareTo devuelve:
+				* 1. Un numero positivo si a > b
+				* 2. Un cero si a == b
+				* 3. Un numero negativo si a < b*/
+				return (a.compareTo(b) > 0) ? a : b;
+			}
+			
+			public static void main(String[] args) {
+				Integer x = 5, y = 10;
+				System.out.println(max(x, y));
+				
+				Double a = 666.5, b = 665.8;
+				System.out.println(max(a, b));
+			}
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 4}
+	
+	\begin{quote}
+		Investigue los términos aplicables a lenguajes de programación  "fuertemente tipado" versus "débilmente tipado". Esté en capacidad de explicarlo con ejemplos.
+	\end{quote}
+	
+	\subsection*{Fuertemente Tipado vs Débilmente Tipado}
+	
+	\begin{itemize}
+		\item \textbf{Fuertemente tipado}: El lenguaje no permite usar valores de tipos incompatibles, sin conversión explícita. Las operaciones inválidas entre tipos fallan en compilación o en tiempo de ejecución.
+		\item \textbf{Débilmente tipado}: El lenguaje aplica conversiones implícitas (coerción) incluso entre tipos distintos, lo que puede dar resultados inesperados.
+	\end{itemize}
+	
+	\subsection*{Ejemplos}
+	
+	\subsubsection*{Fuertemente tipado}
+	
+	\begin{lstlisting}[language=Java,caption={Java}]
+		int x = 5;
+		String y = "10";
+		int z = x + y; // ERROR DE COMPILACION
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=Java,caption={Python, tipado dinámico pero fuerte}]
+		5 + "10" # TypeError: unsupported operand type(s)
+	\end{lstlisting}
+	
+	\subsubsection*{Débilmente tipado}
+	
+	\begin{lstlisting}[language=JavaScript,caption={JavaScript}]
+		5 + "10" // "510" (concatena)
+		"5" - 1 // 4 (convierte "5" a numero)
+		[] == 0 // true 
+	\end{lstlisting}
+	
+	\subsubsection*{Relación con tipado estático/dinámico}
+	
+	\begin{itemize}
+		\item \textbf{Tipado fuerte/débil}: Se refiere a cuánta coerción implícita permite el lenguaje.
+		\item \textbf{Tipado estático/dinámico}: Se refiere a si el tipo se verifica en compilación o en ejecución.
+	\end{itemize}
+	
+	\begin{table}[h]
+		\centering
+		\begin{tabular}{|l|l|l|}
+			\hline
+			\textbf{Lenguaje} & \textbf{Tipado} & \textbf{Comprobación} \\ \hline
+			Java       & Fuerte & Estático \\ \hline
+			Python     & Fuerte & Dinámico \\ \hline
+			JavaScript & Débil  & Dinámico \\ \hline
+			C          & Débil  & Estático \\ \hline
+		\end{tabular}
+		\caption{Comparación de tipado y comprobación en distintos lenguajes}
+		\label{tab:tipado}
+	\end{table}
+	
+	
+\end{document}

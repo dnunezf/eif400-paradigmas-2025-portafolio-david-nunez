@@ -1,0 +1,512 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumitem}
+\geometry{margin=1in}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Colores personalizados
+\definecolor{keywordcolor}{RGB}{0,0,180}
+\definecolor{ndkeywordcolor}{RGB}{128,0,128}
+\definecolor{stringcolor}{RGB}{163,21,21}
+\definecolor{commentcolor}{RGB}{0,128,0}
+
+% --- Definición de Java ---
+\lstdefinelanguage{Java}{
+	keywords={abstract, assert, boolean, break, byte, case, catch, char, class, const, continue, default, do, double, else, enum, extends, final, finally, float, for, goto, if, implements, import, instanceof, int, interface, long, native, new, package, private, protected, public, return, short, static, strictfp, super, switch, synchronized, this, throw, throws, transient, try, void, volatile, while},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]",
+	morestring=[b]'
+}
+
+% --- Definición de JavaScript ---
+\lstdefinelanguage{JavaScript}{
+	keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof,
+		new, return, switch, this, throw, try, typeof, var, void, while, with, const, let},
+	keywordstyle=\color{keywordcolor}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{ndkeywordcolor}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{commentcolor}\ttfamily,
+	stringstyle=\color{stringcolor}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+% Configuración global
+\lstset{
+	basicstyle=\ttfamily\small,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=5pt,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	captionpos=b,
+	frame=single,
+	frameround=tttt
+}
+
+\title{Tarea Independiente 13/10/2025}
+\author{David Núñez Franco}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section*{Inventario de Conceptos Claves}
+	
+	\begin{itemize}
+		\item Promise y la VM de JS
+		\item Problema encadenar promesas (then, catch)
+		\item Iteradores/Iterables en JS
+		\item Symbol, Symbol.iterator
+		\item Iterables, Iteradores, Generadores (function* yield)
+		\item Async/await function  como Generador de Promises
+		\item Introducción a Prolog, muy breve historia
+		\item Uso básico de SWI-Prolog, archivos .pl shell swipl 
+		\item Cargar un archivo, ejemplo:  [holamundo].
+		\item SWI-Prolog es compilado dinámicamente
+		\item LP como una variante de FP usando solo predicados (relaciones).
+		\item Relación como generalización de función (muchos-muchos versus uno-uno)
+		\item Predicado como relación bidireccional
+		\item Datos básicos: átomo (entre comillas simples o sin comillas si es un identificador) versus variable (empieza con mayúscula)  en Prolog
+	\end{itemize}
+	
+	\section*{Ejercicio 0}
+	
+	\begin{quote}
+		"Despulgue" async.js y haga un caso de prueba para las dos versiones print\_json y print\_json\_async
+	\end{quote}
+	
+	\subsection*{Solución simplificada}
+	
+	\begin{lstlisting}[language=JavaScript,caption={simplifiedVersion.js}]
+		// Version con then/catch
+		function print_json_then(user = 1) {
+			fetch(`https://jsonplaceholder.typicode.com/todos/${user}`)
+			.then((res) => res.json())
+			.then((json) => console.log(json))
+			.catch((err) => console.error(err));
+		}
+		
+		// Version async/await
+		async function print_json_async(user = 1) {
+			try {
+				const res = await fetch(
+				`https://jsonplaceholder.typicode.com/todos/${user}`
+				);
+				const json = await res.json();
+				console.log(json);
+			} catch (err) {
+				console.error(err);
+			}
+		}
+		
+		// Casos de prueba simples
+		print_json_then(1);
+		print_json_async(2);
+	\end{lstlisting}
+	
+	\subsection*{Solución depurada con ayuda de IA}
+	
+	\begin{lstlisting}[language=JavaScript,caption={print\_json\_then.mjs}]
+		// print_json con then/catch
+		export function print_json_then(
+		user = 1,
+		{ fetchFn = fetch, logger = console } = {}
+		) {
+			const url = `https://jsonplaceholder.typicode.com/todos/${user}`;
+			return fetchFn(url)
+			.then((res) => {
+				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+				return res.json();
+			})
+			.then((json) => {
+				logger.log(json);
+				return json;
+			})
+			.catch((err) => {
+				logger.error(err);
+				throw err;
+			});
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={print\_json\_async.mjs}]
+		// version async/await equivalente
+		export async function print_json_async(
+		user = 1,
+		{ fetchFn = fetch, logger = console } = {}
+		) {
+			const url = `https://jsonplaceholder.typicode.com/todos/${user}`;
+			try {
+				const res = await fetchFn(url);
+				if (!res.ok) throw new Error(`HTTP ${res.status}`);
+				const json = await res.json();
+				logger.log(json);
+				return json;
+			} catch (err) {
+				logger.error(err);
+				throw err;
+			}
+		}
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={test\_print\_json.mjs}]
+		import { print_json_then } from "./print_json_then.mjs";
+		import { print_json_async } from "./print_json_async.mjs";
+		
+		console.log("\n--- Version con then/catch ---");
+		await print_json_then(1);
+		
+		console.log("\n--- Version async/await ---");
+		await print_json_async(2);
+		
+		console.log("\n--- error esperado, usuario inexistente ---");
+		try {
+			await print_json_async(9999); // 404
+		} catch (e) {
+			console.log("OK, error capturado:", e.message);
+		}
+	\end{lstlisting}
+	
+	\section*{Ejercicio 2}	
+	
+	\begin{quote}
+		Estudie el API de Promise y en particular los combinadores
+		any, Promise.all, Promise.race, Promise.try.
+		Haga ejemplos con all, any, race usando estos tres URIs:
+		
+		https://jsonplaceholder.typicode.com/posts
+		https://dummyjson.com/products/1
+		https://dummyjson.com/products
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]		
+		const URLS = [
+		"https://jsonplaceholder.typicode.com/posts",
+		"https://dummyjson.com/products/1",
+		"https://dummyjson.com/products",
+		];
+		
+		// funcion auxiliar que encapsula el patron repetido de hacer una peticion
+		// fetch y convertir la respuesta a JSON, con manejo basico de errores HTTP
+		const fetchJson = (url) =>
+		fetch(url).then((r) => {
+			if (!r.ok) throw new Error(`HTTP ${r.status} @ ${url}`);
+			return r.json();
+		});
+		
+		// cuando se usan combinadores como Promise.any o Promise.race, solo se
+		// recibe el valor de la promesa ganadora. COn labeled se sabe de que
+		// URL vino el resultado
+		const labeled = (url) => fetchJson(url).then((data) => ({ url, data }));
+		
+		// ALL: espera a todas, rechaza si una falla.
+		export async function demoAll() {
+			const [posts, product1, products] = await Promise.all(URLS.map(fetchJson));
+			console.log("ALL ok:", {
+				posts: posts.length,
+				product1: product1.id,
+				products: products.products?.length ?? products.length,
+			});
+		}
+		
+		// ANY: primera que cumpla, ignora rechazos hasta que una cumpla
+		export async function demoAny() {
+			const first = await Promise.any(URLS.map(labeled));
+			console.log("ANY first ok from", first.url);
+		}
+		
+		// RACE: primera que se resuelva o rechace
+		export async function demoRace() {
+			try {
+				const first = await Promise.race(URLS.map(labeled));
+				console.log("RACE first settled ok from:", first.url);
+			} catch (e) {
+				console.log("RACE rejected first:", e.message);
+			}
+		}
+		
+		// "PROMISE.try" equivalente
+		export function promiseTry(fn) {
+			return Promise.resolve().then(fn);
+		}
+		
+		// Uso de "try"
+		export async function demoTry() {
+			const val = await promiseTry(() => JSON.parse('{"x":1}'));
+			console.log("TRY ok:", val);
+			try {
+				await promiseTry(() => JSON.parse("{bad}"));
+			} catch (e) {
+				console.log("TRY error capturado:", e.message);
+			}
+		}
+		
+		await demoAll();
+		await demoAny();
+		await demoRace();
+		await demoTry();
+	\end{lstlisting}
+	
+	\section*{Ejercicio 3}
+	
+	\begin{quote}
+		Escriba un función delayedApply(f, sec) que retorna una lambda g talque g(x) es una promesa que se resolverá no antes de sec segundos en el valor f(x).
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		export function delayedApply(f, sec) {
+			return function (x) {
+				return new Promise((resolve, reject) => {
+					try {
+						setTimeout(() => resolve(f(x)), sec * 1000);
+					} catch (e) {
+						reject(e);
+					}
+				});
+			};
+		}
+		
+		const double = (n) => n * 2;
+		const g = delayedApply(double, 2);
+		
+		console.log("Inicio...");
+		g(5).then((v) => console.log("Resultado:", v));
+	\end{lstlisting}
+	
+	\section*{Ejercicio 4}
+	
+	\begin{quote}
+		Escriba en JavaScript (imperativo) un generador asíncrono complaint(sec) que espera sec segundos antes de producir la primera hilera "Ay" y luego, cada sec segundos, produce una nueva hilera con una "y" más al final de la anterior: "Ayy", "Ayyy", "Ayyyy", etc.
+		El generador debe producir infinitamente (hasta que el consumidor lo detenga).
+	\end{quote}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript]
+		async function* complaint(sec) {
+			let s = "Ay";
+			while (true) {
+				await new Promise((r) => setTimeout(r, sec * 1000));
+				yield s;
+				s += "y";
+			}
+		}
+		
+		async function main(max = 10) {
+			const gen = complaint(2);
+			for await (const s of gen) {
+				console.log(s);
+				if (s.length > max) break;
+			}
+		}
+		
+		main();
+		
+	\end{lstlisting}
+	
+	\section*{Ejercicio 5}
+	
+	\begin{verbatim}
+		En Prolog: Indique en cada caso si es un átomo o una variable o algo distinto de ambas:
+		a) Hola
+		b) _Hola
+		c) '_Hola'
+		d) '"hola que tal"'
+		e) _xyz
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{itemize}
+		\item a) Hola = Variable (Empieza con mayuscula)
+		\item b) \_Hola = Variable (Empieza con guion bajo)
+		\item c) '\_Hola' = Átomo (Entre comillas simples -> siempre átomo)
+		\item d) '"hola que tal"' = Átomo (Entre comillas simples)
+		\item e) \_xyz = Variable (Empieza con guion bajo)
+	\end{itemize}
+	
+	\section*{Ejercicio 6.a}
+	
+	\begin{verbatim}
+		Problema: "Contar cuantas cuentas tiene una persona dada"
+		Añada y trate de entender esto a nuestro holamundo.pl:
+		
+		/* Obtiene la lista de cuentas de la persona Person */
+		accountsOf(Person, Accounts) :- findall(tuple(Person, Account), person_account(Person, Account), Accounts).
+		/*
+		Donde en SWI-Prolog
+		findAll( Tuple, Query, ListOfTuples) encuentra la lista ListOfTuples de todos los tuples Tuple que Query cumple
+		Piense como en un select Tuple from Query.
+		Las listas en Prolog usan la misma notación de arrays en JS. Ejemplos 
+		[juan, maria, pedro] es una lista de tres átomos.
+		[[juan, 20], [maria, 21], [pedro, 15]] es una lista de 3 listas de largo dos c/u.
+		[] es la lista vacía
+		*/
+		Definamos
+		/* Cuenta cuántas cuentas N tiene la Persona */
+		howManyAccounts(Person, N) :- accounts(Person, Accounts), length(Accounts, N).									
+		/* 
+		length(L, N) es para relacionar una lista A y su largo N.
+		La coma es un AND 
+		*/
+		
+		Pruebe en el shell de swipl (CMD en la carpeta donde está holamundo.pl) ese código.
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={holamundo.pl}]
+		/*    
+		@author: david
+		*/
+		
+		% Juan puede tener mas de una cuenta bancaria (relacion 1-N)
+		% Maria comparte algunas cuentas con Juan
+		person_account(juan, '200-ABC').
+		person_account(juan, '200-QWR').
+		person_account(juan, '100-ABC').
+		person_account(maria, '200-ABC').
+		person_account(maria, '100-RST').
+		
+		/* Obtiene la lista de cuentas de la persona Person */
+		accountsOf(Person, Accounts) :-
+			findall(tuple(Person, Account), person_account(Person, Account), Accounts).
+		
+		/* Cuenta cuantas cuentas N tiene la Persona */
+		howManyAccounts(Person, N) :-
+			accountsOf(Person, Accounts),
+			length(Accounts, N).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={Pruebas en swipl}]
+		?- [holamundo].
+		true.
+		
+		?- accountsOf(juan, A).
+		A = [tuple(juan, '200-ABC'), tuple(juan, '200-QWR'), tuple(juan, '100-ABC')].
+		
+		?- howManyAccounts(juan, N).
+		N = 3.
+		
+		?- howManyAccounts(maria, N).
+		N = 2.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 6.b}
+	
+	\begin{verbatim}
+		Reto: Dos personas P y Q son, coowners(P, Q), si existe una cuenta A que es cuenta de ambas personas.
+		Escriba ese predicado. Siga este seudo código:
+		
+		coowners(P, Q) :- P tiene una cuenta A y Q tiene esa misma cuenta A y P y Q no son la misma persona.
+		
+		En Prolog la coma  es el AND, el punto y coma es el OR.
+		En Prolog el operador de negación es \= (equivale != de JS/JAVA).
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={holamundo.pl}]
+		/* Dos personas P y Q son coowners si comparten al menos una cuenta */
+		coowners(P, Q) :-
+		person_account(P, A),
+		person_account(Q, A),
+		P \= Q.
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- coowners(P, Q).
+		P = juan,
+		Q = maria .
+	\end{lstlisting}
+	
+	\section*{Ejercicio 6.c}
+	
+	\begin{verbatim}
+		Añada un predicado gender(P, G) para indicar que la persona P tiene género G (male, female).
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={holamundo.pl}]
+		/* Indicar el genero de cada persona */
+		gender(juan, male).
+		gender(maria, female).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- [holamundo].
+		true.
+		
+		?- gender(juan, G).
+		G = male.
+		
+		?- gender(maria, G).
+		G = female.
+		
+		?- gender(P, female).
+		P = maria.
+	\end{lstlisting}
+	
+	\section*{Ejercicio 6.d}
+	
+	\begin{verbatim}
+		Añada balance(Acc, Amount) para decir que la cuenta Acc tiene un balance Amount( este siendo un número).
+	\end{verbatim}
+	
+	\subsection*{Solución}
+	
+	\begin{lstlisting}[language=JavaScript,caption={holamundo.pl}]
+		/* Indica el balance (monto) de cada cuenta */
+		balance('200-ABC', 1500).
+		balance('200-QWR', 3200).
+		balance('100-ABC', 800).
+		balance('100-RST', 1200).
+	\end{lstlisting}
+	
+	\begin{lstlisting}[language=JavaScript,caption={output}]
+		?- balance('200-ABC', Monto).
+		Monto = 1500.
+		
+		?- balance(Cuenta, 1200).
+		Cuenta = '100-RST'.
+		
+		?- findall(C, balance(C, _), Lista).
+		Lista = ['200-ABC', '200-QWR', '100-ABC', '100-RST'].
+		
+		?- findall(C, balance(C, 1500), Lista).
+		Lista = ['200-ABC'].
+		
+		?- findall(C, balance(C, 800), Lista).
+		Lista = ['100-ABC'].
+		
+		?- findall(C, balance(C, 3200), Lista).
+		Lista = ['200-QWR'].
+		
+		?- findall(C, balance(C, 0), Lista).
+		Lista = [].
+	\end{lstlisting}
+	
+\end{document}

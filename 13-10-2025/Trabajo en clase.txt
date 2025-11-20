@@ -1,0 +1,48 @@
+Como saber que algo es iterable?
+
+> a=[1,2,3]
+[ 1, 2, 3 ]
+> iter = a.values()
+Object [Array Iterator] {}
+> iter.next()
+{ value: 1, done: false }
+{ value: 2, done: false }
+> iter.next()
+{ value: 3, done: false }
+> iter.next()
+{ value: undefined, done: true }
+
+Los iteradores tienen forEach, reduce, map...
+
+Como hago para pedir un iterador a un iterable?
+
+1. crear nombres de propiedades con nombre que no colisionen (nombres unicos)?
+
+Objeto Symbol es unico
+> s = Symbol('x')
+Symbol(x)
+> s == s
+true
+> s == Symbol('x')
+false
+> 
+
+Propiedad calculada:
+
+> s = Symbol('x')
+Symbol(x)
+> s == s
+true
+> s == Symbol('x')
+false
+> object = {x:1, y:2, [s]: 'hola'}
+{ x: 1, y: 2, [Symbol(x)]: 'hola' }
+> object[s]
+
+> a=[1,2,3]
+[ 1, 2, 3 ]
+> iter = a.values()
+Object [Array Iterator] {}
+> iter[Symbol.iterator] // en este caso se puede saber si un objeto es iterable
+[Function: [Symbol.iterator]]
+>
